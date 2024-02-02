@@ -70,6 +70,20 @@ class T1DPatient(Patient):
     @property
     def state(self):
         current_state = self._odesolver.y
+        # DEFINITION CURRENT STATE --> LOCALITY OF INTERCHANGE
+        ## dxdt1 --> Stomach solid
+        ## dxdt2 --> Stomach liquid
+        ## dxdt3 --> Intestine
+        ## dxdt4 --> Glucose kinetics
+        ## dxdt5 --> Glucose kinetics
+        ## dxdt6 --> Insulin kinetics
+        ## dxdt7 --> Insulin action on glucose utilization
+        ## dxdt8 --> Insulin action on production
+        ## dxdt9 --> Insulin action on production
+        ## dxdt10 --> Insulin in the liver (pmol/kg)
+        ## dxdt11 --> Subcutaneous insulin kinetics
+        ## dxdt12 --> Subcutaneous insulin kinetics
+        ## dxdt13 --> Subcutaneous glucose --> "ground truth"
         self.state_hist.append(current_state)
         return current_state
 
