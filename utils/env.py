@@ -45,7 +45,11 @@ class T1DSimEnv(object):
     def time(self):
         return self.scenario.start_time + timedelta(minutes=self.patient.t)
 
-    def mini_step(self, action):
+    def mini_step(self, action,
+                # for interchange.
+                interchanged_variables=None,
+                variable_names=None,
+                interchanged_activations=None):
         # current action
         patient_action = self.scenario.get_action(self.time)
         basal = self.pump.basal(action.basal)
@@ -55,7 +59,10 @@ class T1DSimEnv(object):
         patient_mdl_act = Action(insulin=insulin, CHO=CHO)
 
         # State update
-        self.patient.step(patient_mdl_act)
+        self.patient.step(action=patient_mdl_act,
+                        interchanged_variables=interchanged_variables,
+                        variable_names=variable_names,
+                        interchanged_activations=interchanged_activations)
 
         # next observation
         BG = self.patient.observation.Gsub
@@ -63,7 +70,12 @@ class T1DSimEnv(object):
 
         return CHO, insulin, BG, CGM
 
-    def step(self, action, reward_fun=risk_diff):
+    def step(self, action,
+            # for interchange.
+            interchanged_variables=None,
+            variable_names=None,
+            interchanged_activations=None,
+            reward_fun=risk_diff):
         """
         action is a namedtuple with keys: basal, bolus
         """
@@ -74,7 +86,10 @@ class T1DSimEnv(object):
 
         for _ in range(int(self.sample_time)):
             # Compute moving average as the sample measurements
-            tmp_CHO, tmp_insulin, tmp_BG, tmp_CGM = self.mini_step(action)
+            tmp_CHO, tmp_insulin, tmp_BG, tmp_CGM = self.mini_step(action=action,
+                                                                   variable_names=variable_names,
+                                                                   interchanged_variables=interchanged_variables,
+                                                                   interchanged_activations=interchanged_activations)
             CHO += tmp_CHO / self.sample_time
             insulin += tmp_insulin / self.sample_time
             BG += tmp_BG / self.sample_time

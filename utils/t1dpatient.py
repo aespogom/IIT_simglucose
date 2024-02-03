@@ -84,7 +84,6 @@ class T1DPatient(Patient):
         ## dxdt11 --> Subcutaneous insulin kinetics
         ## dxdt12 --> Subcutaneous insulin kinetics
         ## dxdt13 --> Subcutaneous glucose --> "ground truth"
-        self.state_hist.append(current_state)
         return current_state
 
     @property
@@ -95,7 +94,10 @@ class T1DPatient(Patient):
     def sample_time(self):
         return self.SAMPLE_TIME
 
-    def step(self, action):
+    def step(self, action,
+            interchanged_variables=None,
+            variable_names=None,
+            interchanged_activations=None):
         # Convert announcing meal to the meal amount to eat at the moment
         to_eat = self._announce_meal(action.CHO)
         action = action._replace(CHO=to_eat)
@@ -122,11 +124,18 @@ class T1DPatient(Patient):
         # Update last input
         self._last_action = action
 
-        # ODE solver
+        # IIT
+        if variable_names != None and int(self._odesolver.t) in variable_names:
+            assert interchanged_variables != None
+            for interchanged_variable in variable_names[int(self._odesolver.t)]:
+                interchanged_activations = interchanged_variables[interchanged_variable[0]]
+                self._odesolver.set_initial_value(interchanged_activations, self._odesolver.t)
+    
         self._odesolver.set_f_params(action, self._params, self._last_Qsto,
                                      self._last_foodtaken)
         if self._odesolver.successful():
             self._odesolver.integrate(self._odesolver.t + self.sample_time)
+            self.state_hist.append(self.state)
         else:
             logger.error('ODE solver failed!!')
             raise
