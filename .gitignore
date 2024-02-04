@@ -4,3 +4,4 @@ utils/__pycache__/*
 data/insilico_validation
 dataset/__pycache__/*
 models/student/__pycache__/*
+results/*

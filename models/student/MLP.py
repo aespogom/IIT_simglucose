@@ -11,10 +11,6 @@ class MLP(nn.Module):
         self.loss = RMSELoss()
         self.ce_loss_fct = nn.KLDivLoss(reduction="batchmean")
 
-    # def forward(self, x):
-    #     out = self.model(x)
-    #     return out
-
     def forward(self,
                 input_ids,
                 # for interchange.

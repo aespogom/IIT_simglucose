@@ -60,7 +60,7 @@ def get_activation_at(
     if look_up is not None:
         # Teacher
         outputs = model(
-            input_ids, look_up=look_up, labels=labels
+            input_ids, look_up=look_up
         )
     else:
         outputs = model(

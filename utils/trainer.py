@@ -9,15 +9,14 @@ import time
 import numpy as np
 from pickle import dump
 from tqdm import tqdm
-
-from .counterfactual_utils import deserialize_variable_name, parse_variable_name, get_activation_at, logger
-from dataset.glucosedataset import GlucoseDataset
-from .early_stopper import EarlyStopper
 from transformers import get_linear_schedule_with_warmup
-from sklearn.metrics import classification_report
 import warnings
 warnings.filterwarnings('ignore')  # "error", "ignore", "always", "default", "module" or "once"
 
+from dataset.glucosedataset import GlucoseDataset
+from .loss_fn import RMSELoss
+from .counterfactual_utils import deserialize_variable_name, parse_variable_name, get_activation_at, logger
+from .early_stopper import EarlyStopper
 
 class Trainer:
     def __init__(
@@ -46,8 +45,8 @@ class Trainer:
         self.last_teacher_interchange_efficacy = 0
         self.last_student_interchange_efficacy = 0
 
-        self.alpha_ce = 0.55
-        self.alpha_causal = 0.55
+        self.alpha_ce = 0.25
+        self.alpha_causal = 0.75
 
         self.track_II_loss = []
         self.track_loss = []
@@ -105,7 +104,7 @@ class Trainer:
         )
         logger.info("------ Number of parameters (student): %i" % sum([p.numel() for p in self.student.parameters()]))
         self.optimizer = AdamW(
-            optimizer_grouped_parameters, lr=0.01, eps=1e-06, betas=(0.9, 0.98)
+            optimizer_grouped_parameters, lr=0.1, eps=1e-06, betas=(0.9, 0.98)
         )
 
         warmup_steps = math.ceil(num_train_optimization_steps * 0.05)
@@ -115,6 +114,7 @@ class Trainer:
             self.optimizer, num_warmup_steps=warmup_steps, num_training_steps=num_train_optimization_steps
         )
         self.early_stopper = EarlyStopper(patience=params.patience)
+        self.loss = RMSELoss()
 
     def train(self):
         """
@@ -219,20 +219,17 @@ class Trainer:
             # teacher forward pass normal.
             teacher_outputs = self.teacher(
                 input_ids=source_ids, # source input
-                labels=source_labels,
                 look_up = look_up_source
             )
             # teacher forward pass normal
             dual_teacher_outputs = self.teacher(
                 input_ids=base_ids, # base input
-                labels=base_labels,
                 look_up=look_up_base
             )
             # teacher forward pass for interchange variables.
             dual_counterfactual_activations_teacher = get_activation_at(
                 self.teacher,
                 input_ids=base_ids, # this is different! OBTAIN BASE ACTIVATIONS
-                labels=base_labels,
                 variable_names=teacher_variable_names,
                 look_up = look_up_base
             )
@@ -240,7 +237,6 @@ class Trainer:
             # teacher forward pass for interchanged outputs.
             counterfactual_outputs_teacher = self.teacher(
                 input_ids=source_ids, # source inputs 
-                labels=source_labels,
                 look_up = look_up_source,
                 interchanged_variables=dual_counterfactual_activations_teacher, # base activations
                 variable_names=teacher_interchanged_variables_mapping
@@ -249,14 +245,12 @@ class Trainer:
             counterfactual_activations_teacher = get_activation_at(
                 self.teacher,
                 input_ids=source_ids, # this is different! OBTAIN SOURCE ACTIVATIONS
-                labels=source_labels,
                 variable_names=teacher_variable_names,
                 look_up = look_up_source
             )
             #
             dual_counterfactual_outputs_teacher = self.teacher(
                 input_ids=base_ids, # base inputs 
-                labels=base_labels,
                 look_up = look_up_base,
                 interchanged_variables=counterfactual_activations_teacher, # source activations
                 variable_names=teacher_interchanged_variables_mapping
@@ -414,14 +408,14 @@ class Trainer:
         best_checkpoint = [checkpoint for checkpoint in current_checkpoints if str(min_loss) in checkpoint][0]
         self.student.load_state_dict(torch.load(os.path.join(self.dump_path,best_checkpoint)))
         ## TODO EVALUATE METHODS
-        # ii_acc = self.ii_accuracy()
-        # beh_acc = self.beh_accuracy()
-        # logger.info(f"------------ II ACCURACY {ii_acc}")
+        ii_loss = self.ii_loss()
+        beh_loss = self.beh_loss()
+        logger.info(f"------------ II LOSS {ii_loss}")
 
-        # logger.info(f"------------- BEH ACCURACY {beh_acc}")
+        logger.info(f"------------- BEH LOSS {beh_loss}")
 
-    def ii_accuracy(self):
-        """ Interchange intervention accuracy quantifies the extent to which the interpretable
+    def ii_loss(self):
+        """ Interchange intervention loss quantifies the extent to which the interpretable
         causal model is a proxy for the network"""
 
         
@@ -494,26 +488,32 @@ class Trainer:
                 )
                 # Get the neural model's prediction with the intervention:
                 pred = outputs_student['outputs']
-                predictions.append(int(pred))
+                predictions.append(pred)
 
             logger.info("Counterfactual evaluation")
-            logger.info(classification_report(labels, predictions))
-            return np.sum(np.equal(predictions,labels))/len(labels)
+            return self.loss(torch.cat(predictions, dim=0),torch.cat(labels, dim=0))
     
-    def beh_accuracy(self):
-        """ Behavioral accuracy is the percentage of inputs that student agrees with teacher """
+    def beh_loss(self):
+        """ Behavioral loss is the percentage of inputs that student agrees with teacher """
         labels = []
         predictions = []
         with torch.no_grad():
             for batch in self.val_dataloader:
-                x, _, batch_labels = batch
-                source = x[0,:]
-                look_up_source = batch_labels[0,:]
-                base = x[-1,:]
-                look_up_base = batch_labels[-1,:]
+
+                pre_meal, post_meal, pat_names = batch
+
+                source = pre_meal[0, :]
+                source_labels = post_meal[0, :]
+                
+                base = pre_meal[-1, :]
+                base_labels = post_meal[-1, :]
+                
+                look_up_source, look_up_base = pat_names
+
                 # Run the causal model:
                 outputs_teacher = self.teacher(
                     input_ids=source, # source input
+                    labels=source_labels,
                     look_up=look_up_source
                 )
                 labels.append(outputs_teacher["outputs"])
@@ -523,11 +523,12 @@ class Trainer:
                 )
                 # Get the neural model's prediction
                 pred = outputs_student['outputs']
-                predictions.append(int(pred))
+                predictions.append(pred)
 
                 # Run the causal model:
                 outputs_teacher = self.teacher(
                     input_ids=base, # base input
+                    labels=base_labels,
                     look_up=look_up_base
                 )
                 labels.append(outputs_teacher["outputs"])
@@ -537,9 +538,8 @@ class Trainer:
                 )
                 # Get the neural model's prediction
                 pred = outputs_student['outputs']
-                predictions.append(int(pred))
+                predictions.append(pred)
 
             logger.info("\nStandard evaluation")
-            logger.info(classification_report(labels, predictions))
-            return np.sum(np.equal(predictions,labels))/len(labels)
+            return self.loss(torch.cat(predictions, dim=0),torch.cat(labels, dim=0))
         

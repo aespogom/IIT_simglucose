@@ -1,4 +1,5 @@
 import argparse
+from datetime import datetime
 import json
 import os
 import shutil
@@ -71,7 +72,7 @@ if __name__ == "__main__":
         default="train_config/MLP.nm",
         help="Predefined neuron mapping for the interchange experiment.",
     )
-    parser.add_argument("--n_epoch", type=int, default=800, help="Number of pass on the whole dataset.")
+    parser.add_argument("--n_epoch", type=int, default=800, help="Number of epochs.")
     parser.add_argument(
         "--gradient_accumulation_steps",
         type=int,
@@ -100,8 +101,9 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
     
+    today = datetime.today().strftime('%Y-%m-%d')
     # config the runname here and overwrite.
-    run_name = f"s_MLP_t_simglucose_data_insilico_seed_56"
+    run_name = f"s_MLP_t_simglucose_data_insilico_seed_56_{today}"
     args.run_name = run_name
     args.dump_path = os.path.join(args.dump_path, args.run_name)
     trainer = prepare_trainer(args)

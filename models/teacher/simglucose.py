@@ -86,6 +86,6 @@ class Simglucose(nn.Module):
 
         teacher_ouputs["hidden_states"] = x
         
-        teacher_ouputs["outputs"]=labels[:,0]
+        teacher_ouputs["outputs"]=torch.tensor(teacher_ouputs["hidden_states"][30::3,-1], dtype=torch.float32)
 
         return teacher_ouputs
