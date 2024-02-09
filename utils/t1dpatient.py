@@ -104,7 +104,7 @@ class T1DPatient(Patient):
 
         # Detect eating or not and update last digestion amount
         if action.CHO > 0 and self._last_action.CHO <= 0:
-            logger.info('t = {}, patient starts eating ...'.format(self.t))
+            # logger.info('t = {}, patient starts eating ...'.format(self.t))
             self._last_Qsto = self.state[0] + self.state[1]  # unit: mg
             self._last_foodtaken = 0  # unit: g
             self.is_eating = True
@@ -118,18 +118,22 @@ class T1DPatient(Patient):
 
         # Detect eating ended
         if action.CHO <= 0 and self._last_action.CHO > 0:
-            logger.info('t = {}, Patient finishes eating!'.format(self.t))
+            # logger.info('t = {}, Patient finishes eating!'.format(self.t))
             self.is_eating = False
 
         # Update last input
         self._last_action = action
 
         # IIT
-        if variable_names != None and int(self._odesolver.t) in variable_names:
+        if variable_names != None and int(self._odesolver.t)%3==0:
+            index = int(self._odesolver.t)//3
             assert interchanged_variables != None
-            for interchanged_variable in variable_names[int(self._odesolver.t)]:
-                interchanged_activations = interchanged_variables[interchanged_variable[0]]
-                self._odesolver.set_initial_value(interchanged_activations, self._odesolver.t)
+            for param in variable_names:
+                interchanged_activations = interchanged_variables[0]
+                interchanged_state = self.state
+                if len(interchanged_activations)>index:
+                    interchanged_state[param] = interchanged_activations[index]
+                    self._odesolver.set_initial_value(interchanged_state, self._odesolver.t)
     
         self._odesolver.set_f_params(action, self._params, self._last_Qsto,
                                      self._last_foodtaken)

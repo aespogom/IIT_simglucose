@@ -71,13 +71,38 @@ def get_activation_at(
         layer_index, LOC = parse_variable_name(
             variable_name=variable
         )
-        # TODO NOT REUSABLE AT ALL, NEED TO GENERALIZE
-        if LOC.start == LOC.stop and LOC.start==":":
-            head_slice = outputs["hidden_states"][layer_index]
-        else:
-            assert LOC.stop==':'
-            start_index = int(LOC.start)
-            head_slice = outputs["hidden_states"][layer_index][start_index,:]
+        partial_LOC_start = LOC.start.split(':')
+        partial_LOC_stop = LOC.stop.split(':')
+        try:
+            LOC_start_start = int(partial_LOC_start[0])
+            LOC_start_stop = int(partial_LOC_start[1])
+            LOC_stop_start = int(partial_LOC_stop[0])
+            LOC_stopt_stop = int(partial_LOC_stop[1])
+            if len(outputs["hidden_states"][layer_index].shape)==1:
+                head_slice = outputs["hidden_states"][layer_index][LOC_start_start:LOC_start_stop]
+            else:
+                head_slice = outputs["hidden_states"][layer_index][LOC_start_start:LOC_start_stop,LOC_stop_start:LOC_stopt_stop]
+        except:
+            if LOC.start == LOC.stop and LOC.start==":":
+                head_slice = outputs["hidden_states"][layer_index]
+            else:
+                if LOC.start == ':':
+                    if len(outputs["hidden_states"][layer_index].shape)==1:
+                            head_slice = outputs["hidden_states"][layer_index][:]
+                    else:
+                        if LOC.stop == ':':
+                            head_slice = outputs["hidden_states"][layer_index][:,:]
+                        else:
+                            head_slice = outputs["hidden_states"][layer_index][:,int(LOC.stop)]  
+                else:
+                    start_index = int(LOC.start)
+                    if len(outputs["hidden_states"][layer_index].shape)==1:
+                            head_slice = outputs["hidden_states"][layer_index][start_index]
+                    else:
+                        if LOC.stop == ':':
+                            head_slice = outputs["hidden_states"][layer_index][start_index,:]
+                        else:
+                            head_slice = outputs["hidden_states"][layer_index][start_index,int(LOC.stop)]  
             
         activations += [head_slice]
     return activations
@@ -86,11 +111,26 @@ def interchange_hook(interchanged_variable, interchanged_activations):
     # the hook signature
     def hook(model, input, output):
         # interchange inplace.
-        # TODO NOT REUSABLE AT ALL, NEED TO GENERALIZE
-        assert interchanged_variable[1].stop==':'
-        if interchanged_variable[1].start == ':':
-            output = interchanged_activations
-        else:
-            output[int(interchanged_variable[1].start),:] = interchanged_activations
-        return output
+        
+        partial_LOC_start = interchanged_variable[1].start.split(':')
+        partial_LOC_stop = interchanged_variable[1].stop.split(':')
+        try:
+            LOC_start_start = int(partial_LOC_start[0])
+            LOC_start_stop = int(partial_LOC_start[1])
+            LOC_stop_start = int(partial_LOC_stop[0])
+            LOC_stopt_stop = int(partial_LOC_stop[1])
+            output[LOC_start_start:LOC_start_stop,LOC_stop_start:LOC_stopt_stop] = interchanged_activations
+        except:
+            if interchanged_variable[1].start == ':':
+                if interchanged_variable[1].stop==':':
+                    output = interchanged_activations
+                else:
+                    output[:,int(interchanged_variable[1].stop)] = interchanged_activations
+            else:
+                if interchanged_variable[1].stop==':':
+                    output[int(interchanged_variable[1].start),:] = interchanged_activations
+                else:
+                    output[int(interchanged_variable[1].start),int(interchanged_variable[1].stop)] = interchanged_activations
+        finally:
+            return output
     return hook

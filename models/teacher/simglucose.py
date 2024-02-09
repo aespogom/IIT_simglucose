@@ -20,6 +20,7 @@ class Simglucose(nn.Module):
         # Oracle simulator
         self.model = self.simulator
         self.loss = RMSELoss()
+        self.loss = nn.MSELoss(reduction='mean')
         # specify start_time as the beginning of today
         now = datetime.now()
         self.start_time = datetime.combine(now.date(), datetime.min.time())
@@ -77,15 +78,15 @@ class Simglucose(nn.Module):
         teacher_ouputs = {}
         teacher_ouputs["hidden_states"]=[]
         # we perform the interchange intervention
-        meal_size = float(input_ids[-1,2])
+        meal_size = float(input_ids[-11])
         x = self.simulator(look_up,
                            meal_size,
                            variable_names=variable_names,
                            interchanged_variables=interchanged_variables,
                            interchanged_activations=interchanged_activations)
 
-        teacher_ouputs["hidden_states"] = x
+        teacher_ouputs["hidden_states"] = np.transpose(x)[:,::3]
         
-        teacher_ouputs["outputs"]=torch.tensor(teacher_ouputs["hidden_states"][30::3,-1], dtype=torch.float32)
+        teacher_ouputs["outputs"]=torch.tensor(teacher_ouputs["hidden_states"][-1,-10:]*0.01, dtype=torch.float32)
 
         return teacher_ouputs

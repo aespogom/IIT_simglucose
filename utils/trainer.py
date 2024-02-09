@@ -104,7 +104,7 @@ class Trainer:
         )
         logger.info("------ Number of parameters (student): %i" % sum([p.numel() for p in self.student.parameters()]))
         self.optimizer = AdamW(
-            optimizer_grouped_parameters, lr=0.1, eps=1e-06, betas=(0.9, 0.98)
+            optimizer_grouped_parameters, lr=0.01, eps=1e-06, betas=(0.9, 0.98)
         )
 
         warmup_steps = math.ceil(num_train_optimization_steps * 0.05)
@@ -114,7 +114,8 @@ class Trainer:
             self.optimizer, num_warmup_steps=warmup_steps, num_training_steps=num_train_optimization_steps
         )
         self.early_stopper = EarlyStopper(patience=params.patience)
-        self.loss = RMSELoss()
+        # self.loss = RMSELoss()
+        self.loss = nn.MSELoss(reduction='mean')
 
     def train(self):
         """
@@ -133,10 +134,10 @@ class Trainer:
                 pre_meal, post_meal, pat_names = batch
 
                 source = pre_meal[0, :]
-                source_labels = post_meal[0, :]
+                source_labels = post_meal[0]
                 
                 base = pre_meal[-1, :]
-                base_labels = post_meal[-1, :]
+                base_labels = post_meal[-1]
                 
                 look_up_source, look_up_base = pat_names
 
@@ -341,6 +342,10 @@ class Trainer:
         self.total_loss_epoch += loss.item()
         self.last_loss = loss.item()# optional recording of the value.
         self.last_loss_causal_ce = causal_loss_ce.item()
+
+        if self.n_iter % self.params.gradient_accumulation_steps == 0:
+            print(f"Student outputs is: {str(s_outputs)}")
+            print(f"Student dual outputs is: {str(dual_s_outputs)}")
         
         self.optimize(loss)
 
@@ -449,10 +454,10 @@ class Trainer:
                 pre_meal, post_meal, pat_names = batch
 
                 source = pre_meal[0, :]
-                source_labels = post_meal[0, :]
+                source_labels = post_meal[0]
                 
                 base = pre_meal[-1, :]
-                base_labels = post_meal[-1, :]
+                base_labels = post_meal[-1]
                 
                 look_up_source, look_up_base = pat_names
             
@@ -503,10 +508,10 @@ class Trainer:
                 pre_meal, post_meal, pat_names = batch
 
                 source = pre_meal[0, :]
-                source_labels = post_meal[0, :]
+                source_labels = post_meal[0]
                 
                 base = pre_meal[-1, :]
-                base_labels = post_meal[-1, :]
+                base_labels = post_meal[-1]
                 
                 look_up_source, look_up_base = pat_names
 

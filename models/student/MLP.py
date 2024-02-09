@@ -1,15 +1,96 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from utils.counterfactual_utils import interchange_hook
 from utils.loss_fn import RMSELoss
 
 class MLP(nn.Module):
     def __init__(self):
         super(MLP, self).__init__()
-        self.fc1 = nn.Linear(22, 13)
-        self.fc2 = nn.Linear(13, 10)
-        self.loss = RMSELoss()
-        self.ce_loss_fct = nn.KLDivLoss(reduction="batchmean")
+        
+        # X_1
+        self.X_1 = nn.Sequential(
+            nn.Linear(25, 20),
+            nn.LeakyReLU(),
+            nn.Dropout(0.3)
+        )
+        # X_2
+        self.X_2 = nn.Sequential(
+            nn.Linear(25, 20),
+            nn.LeakyReLU(),
+            nn.Dropout(0.3)
+        )
+        # X_3
+        self.X_3 = nn.Sequential(
+            nn.Linear(25, 20),
+            nn.LeakyReLU(),
+            nn.Dropout(0.3)
+        )
+        # X_4
+        self.X_4 = nn.Sequential(
+            nn.Linear(25, 20),
+            nn.LeakyReLU(),
+            nn.Dropout(0.3)
+        )
+        # X_5
+        self.X_5 = nn.Sequential(
+            nn.Linear(25, 20),
+            nn.LeakyReLU(),
+            nn.Dropout(0.3)
+        )
+        # X_6
+        self.X_6 = nn.Sequential(
+            nn.Linear(25, 20),
+            nn.LeakyReLU(),
+            nn.Dropout(0.3)
+        )
+        # X_7
+        self.X_7 = nn.Sequential(
+            nn.Linear(25, 20),
+            nn.LeakyReLU(),
+            nn.Dropout(0.3)
+        )
+        # X_8
+        self.X_8 = nn.Sequential(
+            nn.Linear(25, 20),
+            nn.LeakyReLU(),
+            nn.Dropout(0.3)
+        )
+        # X_9
+        self.X_9 = nn.Sequential(
+            nn.Linear(25, 20),
+            nn.LeakyReLU(),
+            nn.Dropout(0.3)
+        )
+        # X_10
+        self.X_10 = nn.Sequential(
+            nn.Linear(25, 20),
+            nn.LeakyReLU(),
+            nn.Dropout(0.3)
+        )
+        # X_11
+        self.X_11 = nn.Sequential(
+            nn.Linear(25, 20),
+            nn.LeakyReLU(),
+            nn.Dropout(0.3)
+        )
+        # X_12
+        self.X_12 = nn.Sequential(
+            nn.Linear(25, 20),
+            nn.LeakyReLU(),
+            nn.Dropout(0.3)
+        )
+        # X_13
+        self.X_13 = nn.Sequential(
+            nn.Linear(25, 20),
+            nn.LeakyReLU(),
+            nn.Dropout(0.3)
+        )
+        
+        
+        self.output = nn.Linear(13*20, 10)
+        # self.loss = RMSELoss()
+        self.loss = nn.MSELoss(reduction='mean')
 
     def forward(self,
                 input_ids,
@@ -25,24 +106,25 @@ class MLP(nn.Module):
         student_output = {}
         student_output["hidden_states"]=[]
         # Interchange intervention
-        x = input_ids
+        input_ids = torch.cat([input_ids[0:15], input_ids[16:]]) # Exclude CHO without scaling
         hooks = []
-        layers = [self.fc1, self.fc2]
+        layers = [self.X_1,self.X_2,self.X_3,self.X_4,self.X_5,self.X_6,self.X_7,self.X_8,self.X_9,self.X_10,self.X_11,self.X_12, self.X_13]
         for i, layer_module in enumerate(layers):
             if variable_names != None and i in variable_names:
                 assert interchanged_variables != None
                 for interchanged_variable in variable_names[i]:
                     interchanged_activations = interchanged_variables[interchanged_variable[0]]
-                    #https://web.stanford.edu/~nanbhas/blog/forward-hooks-pytorch/#method-3-attach-a-hook AND interchange_with_activation_at()
+                    # #https://web.stanford.edu/~nanbhas/blog/forward-hooks-pytorch/#method-3-attach-a-hook AND interchange_with_activation_at()
                     hook = layer_module.register_forward_hook(interchange_hook(interchanged_variable, interchanged_activations))
                     hooks.append(hook)
             x = layer_module(
-                x
+                input_ids
             )
             student_output["hidden_states"].append(x)
         
-        student_output["outputs"] = x[:,0] #glucose level
-        
+        flat_tensor = torch.tensor([item for sublist in student_output["hidden_states"] for item in sublist])
+        student_output["outputs"] = self.output(flat_tensor)
+
         # IIT Objective
         # For each intermediate variable Yw ∈ {YTL, YTR, YBL, YBR}, we introduce an IIT
         #    objective that optimizes for N implementing Cw the
@@ -64,16 +146,16 @@ class MLP(nn.Module):
 
             # measure the efficacy of the interchange.
             teacher_interchange_efficacy = (
-                self.ce_loss_fct(
-                    nn.functional.log_softmax(causal_t_outputs, dim=-1),
-                    nn.functional.softmax(t_outputs, dim=-1),
+                self.loss(
+                    causal_t_outputs,
+                    t_outputs,
                 )
             )
 
             student_interchange_efficacy = (
-                self.ce_loss_fct(
-                    nn.functional.log_softmax(causal_s_outputs, dim=-1),
-                    nn.functional.softmax(s_outputs, dim=-1),
+                self.loss(
+                    causal_s_outputs,
+                    s_outputs,
                 )
             )
             student_output["teacher_interchange_efficacy"] = teacher_interchange_efficacy

@@ -7,6 +7,7 @@ import torch
 from dataset.glucosedataset import setup_loaders
 from models.teacher import simglucose as teacher
 from models.student import MLP as student
+# from models.student import resnet18 as student
 from utils.counterfactual_utils import set_seed, logger
 from utils.trainer import Trainer
 
@@ -69,14 +70,14 @@ if __name__ == "__main__":
     parser.add_argument(
         "--neuro_mapping",
         type=str,
-        default="train_config/MLP.nm",
+        default="train_config/MLP_parallel.nm",
         help="Predefined neuron mapping for the interchange experiment.",
     )
     parser.add_argument("--n_epoch", type=int, default=800, help="Number of epochs.")
     parser.add_argument(
         "--gradient_accumulation_steps",
         type=int,
-        default=500,
+        default=20,
         help="Gradient accumulation for larger training batches.",
     )
     parser.add_argument(
