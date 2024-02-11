@@ -1,8 +1,6 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from utils.counterfactual_utils import interchange_hook
-from utils.loss_fn import RMSELoss
 
 class MLP(nn.Module):
     def __init__(self):

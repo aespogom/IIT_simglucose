@@ -142,6 +142,7 @@ class T1DPatient(Patient):
             self.state_hist.append(self.state)
         else:
             logger.error('ODE solver failed!!')
+            logger.info(self._odesolver.y)
             raise
 
     @staticmethod
