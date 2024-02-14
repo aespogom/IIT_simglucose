@@ -68,7 +68,7 @@ class BBController(Controller):
             # bolus = (
             #     (meal * env_sample_time) / quest.CR.values + (glucose > 150) *
             #     (glucose - self.target) / quest.CF.values).item()  # unit: U
-            bolus = fixed_bolus
+            bolus = fixed_bolus - basal
         else:
             bolus = 0  # unit: U
 

@@ -143,6 +143,7 @@ class T1DPatient(Patient):
         else:
             logger.error(f'ODE solver failed!! at {str(self._odesolver.t + self.sample_time)}')
             logger.info(self._odesolver.y)
+            logger.info(self._odesolver.get_return_code())
             raise Exception('ODE solver failed!!')
 
     @staticmethod
@@ -303,7 +304,7 @@ class T1DPatient(Patient):
         self._last_foodtaken = 0
         self.name = self._params.Name
 
-        self._odesolver = ode(self.model).set_integrator('dopri5')
+        self._odesolver = ode(self.model).set_integrator('dopri5', nsteps= 5000)
         self._odesolver.set_initial_value(self.init_state, self.t0)
 
         self._last_action = Action(CHO=0, insulin=0)
