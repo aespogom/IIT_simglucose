@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import multiprocessing
 import os
+import random
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
@@ -14,6 +15,7 @@ CONTROL_QUEST = os.path.join('data','sampled_insilico_quest.csv')
 quest = pd.read_csv(CONTROL_QUEST)
 
 PATIENT_IDS = [pat_name for pat_name in quest['Name']]
+random.shuffle(PATIENT_IDS)
 
 def get_init_state(pat_name, vparams):
     ''' Get initial state of the patient'''

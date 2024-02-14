@@ -6,7 +6,6 @@ import numpy as np
 from utils.t1dpatient import T1DPatient
 from utils.env import T1DSimEnv
 from utils.controller import BBController
-from utils.loss_fn import RMSELoss
 from simglucose.sensor.cgm import CGMSensor
 from simglucose.actuator.pump import InsulinPump
 from simglucose.simulation.scenario import CustomScenario
@@ -15,15 +14,15 @@ from simglucose.simulation.scenario import CustomScenario
 class Simglucose(nn.Module):
     """
     """
-    def __init__(self):
+    def __init__(self, pred_horizon):
         super().__init__()
         # Oracle simulator
         self.model = self.simulator
-        self.loss = RMSELoss()
         self.loss = nn.MSELoss(reduction='mean')
         # specify start_time as the beginning of today
         now = datetime.now()
         self.start_time = datetime.combine(now.date(), datetime.min.time())
+        self.pred_horizon = pred_horizon
 
     def simulator(self, 
                   pat_name, 
@@ -46,7 +45,17 @@ class Simglucose(nn.Module):
 
         controller.reset()
         obs, reward, done, info = env.reset()
-        while env.time < scenario.start_time + timedelta(hours=1):
+
+        if self.pred_horizon == 30:
+            sim_time = timedelta(hours=1)
+        elif self.pred_horizon == 45:
+            sim_time = timedelta(hours=1, minutes=15)
+        elif self.pred_horizon == 60:
+            sim_time = timedelta(hours=1, minutes=30)
+        else:
+            sim_time=0
+
+        while env.time < scenario.start_time + sim_time:
             action = controller.policy(obs, reward, done, **info)
             obs, reward, done, info = env.step(action=action,
                                                interchanged_variables=interchanged_variables,
@@ -86,7 +95,16 @@ class Simglucose(nn.Module):
                            interchanged_activations=interchanged_activations)
 
         teacher_ouputs["hidden_states"] = np.transpose(x)[:,::3]
+
+        if self.pred_horizon == 30:
+            output_size = -10
+        elif self.pred_horizon == 45:
+            output_size = -15
+        elif self.pred_horizon == 60:
+            output_size = -20
+        else:
+            output_size=0
         
-        teacher_ouputs["outputs"]=torch.tensor(teacher_ouputs["hidden_states"][-1,-10:]*0.01, dtype=torch.float32)
+        teacher_ouputs["outputs"]=torch.tensor(teacher_ouputs["hidden_states"][-1,output_size:]*0.01, dtype=torch.float32)
 
         return teacher_ouputs

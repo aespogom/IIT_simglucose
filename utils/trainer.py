@@ -41,14 +41,13 @@ class Trainer:
         self.last_loss = 0
         self.last_loss_ce = 0
 
-        # if not neuro_mapping, alpha are not used because _ce is 1
-        self.alpha_ce = 0.25
-        self.alpha_causal = 0.75
+        # if not neuro_mapping, alpha are not used and regular loss is used as default
+        self.alpha_ce = params.alpha_ce
+        self.alpha_causal = params.alpha_causal
 
         self.track_loss = []
         
         if self.neuro_mapping:
-            logger.info('ATTENTION: TRAINING REGULAR, NOT IIT APPLIED!')
             self.last_loss_causal_ce = 0
             self.last_teacher_interchange_efficacy = 0
             self.last_student_interchange_efficacy = 0
@@ -74,6 +73,8 @@ class Trainer:
                         [teacher_deserialized_variables, student_deserialized_variables]
                     ]
             logger.info(f"Deserialized interchange variable mappings {str(self.deserialized_interchange_variable_mappings)}.")
+        else:
+            logger.info('ATTENTION: TRAINING REGULAR, NOT IIT APPLIED!')
         
         logger.info("--- Dataset loaded")
         self.dataloader = dataset

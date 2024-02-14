@@ -5,8 +5,8 @@ import os
 import shutil
 import torch
 from dataset.glucosedataset import setup_loaders
-from models.student import MLP as student
 from models.teacher import simglucose as teacher
+from models.student import ResNet1D as student
 from utils.counterfactual_utils import set_seed, logger
 from utils.trainer import Trainer
 
@@ -16,8 +16,8 @@ def prepare_trainer(args):
     args.seed=56
     set_seed(args)
     
-    if os.path.exists(args.dump_path):
-        shutil.rmtree(args.dump_path)
+    # if os.path.exists(args.dump_path):
+    #     shutil.rmtree(args.dump_path)
 
     if not os.path.exists(args.dump_path):
         os.makedirs(args.dump_path)
@@ -28,7 +28,7 @@ def prepare_trainer(args):
     with open(os.path.join(args.dump_path, "parameters.json"), "w") as f:
         json.dump(vars(args), f, indent=4)
 
-    student_model = student.MLP()
+    student_model = student.ResNet1D()
     # student = student_model.to(f"cuda:0", non_blocking=True)
     logger.info("Student loaded.")
     teacher_model = teacher.Simglucose()
@@ -46,7 +46,7 @@ def prepare_trainer(args):
         params=args,
         dataset=train_dataset,
         val_dataset=val_dataset,
-        neuro_mapping=None,
+        neuro_mapping=args.neuro_mapping,
         student=student_model,
         teacher=teacher_model
     )
@@ -65,6 +65,24 @@ if __name__ == "__main__":
         type=str,
         default="results",
         help="The output directory (log, checkpoints, parameters, etc.)"
+    )
+    parser.add_argument(
+        "--neuro_mapping",
+        type=str,
+        default="train_config/ResNet1D.nm",
+        help="Predefined neuron mapping for the interchange experiment.",
+    )
+    parser.add_argument(
+        "--alpha_ce",
+        type=float,
+        default=0,
+        help="Coefficient regular loss",
+    )
+    parser.add_argument(
+        "--alpha_causal",
+        type=float,
+        default=1,
+        help="Coefficient causal loss",
     )
     parser.add_argument("--n_epoch", type=int, default=800, help="Number of epochs.")
     parser.add_argument(
@@ -91,6 +109,13 @@ if __name__ == "__main__":
         default=20,
         help="Patience for early stopper.",
     )
+    parser.add_argument(
+        "--pred_horizon",
+        type=int,
+        choices=[30, 45, 60],
+        default=30,
+        help="Prediction horizon.",
+    )
 
     
     args = parser.parse_args()
@@ -98,7 +123,7 @@ if __name__ == "__main__":
     today = datetime.today().strftime('%Y-%m-%d')
     start = datetime.now()
     # config the runname here and overwrite.
-    run_name = f"s_MLP_data_insilico_seed_56_{today}"
+    run_name = f"s_resnet_t_simglucose_data_insilico_seed_56_{today}"
     args.run_name = run_name
     args.dump_path = os.path.join(args.dump_path, args.run_name)
     trainer = prepare_trainer(args)
@@ -110,4 +135,4 @@ if __name__ == "__main__":
     finally:
         ## TODO EVALUATE METHODS
         trainer.evaluate()
-    print(f'Finished at {start - datetime.now()}')
+    print(f'Finished {start-datetime.now()}')
