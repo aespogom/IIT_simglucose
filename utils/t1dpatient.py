@@ -141,9 +141,9 @@ class T1DPatient(Patient):
             self._odesolver.integrate(self._odesolver.t + self.sample_time)
             self.state_hist.append(self.state)
         else:
-            logger.error('ODE solver failed!!')
+            logger.error(f'ODE solver failed!! at {str(self._odesolver.t + self.sample_time)}')
             logger.info(self._odesolver.y)
-            raise
+            raise Exception('ODE solver failed!!')
 
     @staticmethod
     def model(t, x, action, params, last_Qsto, last_foodtaken):

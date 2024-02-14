@@ -27,6 +27,7 @@ class Simglucose(nn.Module):
     def simulator(self, 
                   pat_name, 
                   meal_size,
+                  bolus,
                   # for interchange.
                   interchanged_variables=None,
                   variable_names=None,
@@ -61,6 +62,7 @@ class Simglucose(nn.Module):
                                                interchanged_variables=interchanged_variables,
                                                variable_names=variable_names,
                                                interchanged_activations=interchanged_activations)
+            info['bolus']=bolus
         return np.array(patient.state_hist)
 
 
@@ -88,8 +90,10 @@ class Simglucose(nn.Module):
         teacher_ouputs["hidden_states"]=[]
         # we perform the interchange intervention
         meal_size = float(input_ids[-11])
+        bolus = float(input_ids[-12])
         x = self.simulator(look_up,
                            meal_size,
+                           bolus,
                            variable_names=variable_names,
                            interchanged_variables=interchanged_variables,
                            interchanged_activations=interchanged_activations)
