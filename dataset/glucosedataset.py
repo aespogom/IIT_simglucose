@@ -83,8 +83,8 @@ def create_dataset(vparams):
             gb, _, _ = get_gb_insulin_cho_at(pat_name, time_at)
             temp_gb.append(gb)
         # Append to the rest of patients
-        # CHO and insulin is appended twice: first for input data for model to be scaled, second for input data for the simulator as raw
-        data_patients[pat_name] = np.array([*initial_state, insulin, cho, insulin, cho, *temp_gb, gb_meal])
+        # CHO is appended twice: first for input data for model to be scaled, second for input data for the simulator as raw
+        data_patients[pat_name] = np.array([*initial_state, insulin, cho, cho, *temp_gb, gb_meal])
 
     # split into train and test sets
     train_size = int(len(data_patients.keys()) * 0.6)
@@ -98,12 +98,11 @@ def create_dataset(vparams):
         selected_arrays.append(data_patients[pat_id])
     train = np.stack(selected_arrays, axis=0)
     # Fit the scaler only to the first part of the data (excluding the two last columns)
-    scaler.fit(train[:, :-13])
-    X_train_normalized_reshaped = scaler.transform(train[:, :-13])
-    train[:, -11:] *= 0.01 #GBs
-    # train[:, -12] CHO without standarization
-    # train[:, -13] Insulin without standarization
-    X_train_normalized_reshaped = np.concatenate([X_train_normalized_reshaped, train[:, -13:]], axis=1)
+    scaler.fit(train[:, :-12])
+    X_train_normalized_reshaped = scaler.transform(train[:, :-12])
+    train[:, -11:] *= 0.01 #GB
+    # train[:, -12] CHO
+    X_train_normalized_reshaped = np.concatenate([X_train_normalized_reshaped, train[:, -12:]], axis=1)
 
     val_ids = PATIENT_IDS[train_size:train_size+val_size]
     selected_arrays = []
@@ -111,11 +110,10 @@ def create_dataset(vparams):
         selected_arrays.append(data_patients[pat_id])
     val = np.stack(selected_arrays, axis=0)
     # Fit the scaler only to the first part of the data (excluding the two last columns)
-    X_val_normalized_reshaped = scaler.transform(val[:, :-13])
+    X_val_normalized_reshaped = scaler.transform(val[:, :-12])
     val[:, -11:] *= 0.01 #GBs
     # val[:, -12] CHO without standarization
-    # val[:, -13] Insulin without standarization
-    X_val_normalized_reshaped = np.concatenate([X_val_normalized_reshaped, val[:, -13:]], axis=1)
+    X_val_normalized_reshaped = np.concatenate([X_val_normalized_reshaped, val[:, -12:]], axis=1)
 
     test_ids = PATIENT_IDS[train_size+val_size:]
     selected_arrays = []
@@ -123,11 +121,10 @@ def create_dataset(vparams):
         selected_arrays.append(data_patients[pat_id])
     test = np.stack(selected_arrays, axis=0)
     # Fit the scaler only to the first part of the data (excluding the two last columns)
-    X_test_normalized_reshaped = scaler.transform(test[:, :-13])
-    test[:, -11:] *= 0.01 #GBs
-    # test[:, -12] CHO without standarization
-    # test[:, -13] Insulin without standarization
-    X_test_normalized_reshaped = np.concatenate([X_test_normalized_reshaped, test[:, -13:]], axis=1)
+    X_test_normalized_reshaped = scaler.transform(test[:, :-12])
+    test[:, -11:] *= 0.01 #GB
+    # test[:, -12] CHO
+    X_test_normalized_reshaped = np.concatenate([X_test_normalized_reshaped, test[:, -12:]], axis=1)
 
     return  torch.from_numpy(X_train_normalized_reshaped).to(torch.float32), train_ids, \
             torch.from_numpy(X_val_normalized_reshaped).to(torch.float32), val_ids, \

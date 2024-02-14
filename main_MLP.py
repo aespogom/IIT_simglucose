@@ -75,16 +75,16 @@ if __name__ == "__main__":
     parser.add_argument(
         "--alpha_ce",
         type=float,
-        default=0.25,
+        default=0,
         help="Coefficient regular loss",
     )
     parser.add_argument(
         "--alpha_causal",
         type=float,
-        default=0.75,
+        default=1,
         help="Coefficient causal loss",
     )
-    parser.add_argument("--n_epoch", type=int, default=300, help="Number of epochs.")
+    parser.add_argument("--n_epoch", type=int, default=800, help="Number of epochs.")
     parser.add_argument(
         "--gradient_accumulation_steps",
         type=int,
@@ -113,7 +113,7 @@ if __name__ == "__main__":
         "--pred_horizon",
         type=int,
         choices=[30, 45, 60],
-        default=60,
+        default=30,
         help="Prediction horizon.",
     )
     

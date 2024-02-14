@@ -141,7 +141,7 @@ class T1DPatient(Patient):
             self._odesolver.integrate(self._odesolver.t + self.sample_time)
             self.state_hist.append(self.state)
         else:
-            logger.error(f'ODE solver failed!! at {str(self._odesolver.t + self.sample_time)}')
+            logger.error('ODE solver failed!!')
             logger.info(self._odesolver.y)
             logger.info(self._odesolver.get_return_code())
             raise Exception('ODE solver failed!!')

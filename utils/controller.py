@@ -25,12 +25,11 @@ class BBController(Controller):
         sample_time = kwargs.get('sample_time', 1)
         pname = kwargs.get('patient_name')
         meal = kwargs.get('meal')  # unit: g/min
-        bolus = kwargs.get('bolus')
 
-        action = self._bb_policy(pname, meal, observation.CGM, sample_time, bolus)
+        action = self._bb_policy(pname, meal, observation.CGM, sample_time)
         return action
 
-    def _bb_policy(self, name, meal, glucose, env_sample_time, fixed_bolus):
+    def _bb_policy(self, name, meal, glucose, env_sample_time):
         """
         Helper function to compute the basal and bolus amount.
 
@@ -65,10 +64,9 @@ class BBController(Controller):
             # logger.info('Calculating bolus ...')
             # logger.info(f'Meal = {meal} g/min')
             # logger.info(f'glucose = {glucose}')
-            # bolus = (
-            #     (meal * env_sample_time) / quest.CR.values + (glucose > 150) *
-            #     (glucose - self.target) / quest.CF.values).item()  # unit: U
-            bolus = fixed_bolus - basal
+            bolus = (
+                (meal * env_sample_time) / quest.CR.values + (glucose > 150) *
+                (glucose - self.target) / quest.CF.values).item()  # unit: U
         else:
             bolus = 0  # unit: U
 
