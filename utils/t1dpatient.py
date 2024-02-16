@@ -95,6 +95,7 @@ class T1DPatient(Patient):
         return self.SAMPLE_TIME
 
     def step(self, action,
+            pred_horizon,
             interchanged_variables=None,
             variable_names=None,
             interchanged_activations=None):
@@ -125,15 +126,15 @@ class T1DPatient(Patient):
         self._last_action = action
 
         # IIT
-        if variable_names != None and int(self._odesolver.t)%3==0:
-            index = int(self._odesolver.t)//3
+        save_state = None
+        if variable_names != None and int(self._odesolver.t)==30+pred_horizon-1:
             assert interchanged_variables != None
             for param in variable_names:
                 interchanged_activations = interchanged_variables[0]
                 interchanged_state = self.state
-                if len(interchanged_activations)>index:
-                    interchanged_state[param] = interchanged_activations[index]
-                    self._odesolver.set_initial_value(interchanged_state, self._odesolver.t)
+                save_state = self.state
+                interchanged_state[param] = interchanged_activations
+                self._odesolver.set_initial_value(interchanged_state, self._odesolver.t)
     
         self._odesolver.set_f_params(action, self._params, self._last_Qsto,
                                      self._last_foodtaken)
@@ -141,10 +142,23 @@ class T1DPatient(Patient):
             self._odesolver.integrate(self._odesolver.t + self.sample_time)
             self.state_hist.append(self.state)
         else:
-            logger.error('ODE solver failed!!')
+            logger.info('ODE solver failed!!')
             logger.info(self._odesolver.y)
             logger.info(self._odesolver.get_return_code())
-            raise Exception('ODE solver failed!!')
+            if self._odesolver.t > 30+pred_horizon:
+                logger.info(f'Error in the time ??? {self._odesolver.t} for {self.name}')
+            elif interchanged_variables != None and save_state != None:
+                logger.info('Revert interchange intervention')
+                self._odesolver.set_initial_value(save_state, self._odesolver.t)
+                self._odesolver.set_f_params(action, self._params, self._last_Qsto,
+                                     self._last_foodtaken)
+                if self._odesolver.successful():
+                    self._odesolver.integrate(self._odesolver.t + self.sample_time)
+                else:
+                    logger.error('The revert didnt work')
+            else:
+                logger.error('No solution :(')
+
 
     @staticmethod
     def model(t, x, action, params, last_Qsto, last_foodtaken):
