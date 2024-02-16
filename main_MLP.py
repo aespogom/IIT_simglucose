@@ -28,7 +28,7 @@ def prepare_trainer(args):
     with open(os.path.join(args.dump_path, "parameters.json"), "w") as f:
         json.dump(vars(args), f, indent=4)
 
-    student_model = student.MLP(args.pred_horizon)
+    student_model = student.MLP()
     # student = student_model.to(f"cuda:0", non_blocking=True)
     logger.info("Student loaded.")
     teacher_model = teacher.Simglucose(args.pred_horizon)
@@ -75,13 +75,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "--alpha_ce",
         type=float,
-        default=0,
+        default=0.25,
         help="Coefficient regular loss",
     )
     parser.add_argument(
         "--alpha_causal",
         type=float,
-        default=1,
+        default=0.75,
         help="Coefficient causal loss",
     )
     parser.add_argument("--n_epoch", type=int, default=800, help="Number of epochs.")

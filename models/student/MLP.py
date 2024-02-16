@@ -3,100 +3,89 @@ import torch.nn as nn
 from utils.counterfactual_utils import interchange_hook
 
 class MLP(nn.Module):
-    def __init__(self, pred_horizon):
+    def __init__(self):
         super(MLP, self).__init__()
         
-        if pred_horizon == 30:
-            num_neurons = 20
-            output_size = 10
-        elif pred_horizon == 45:
-            num_neurons = 25
-            output_size = 15
-        elif pred_horizon == 60:
-            num_neurons = 30
-            output_size = 20
-        else:
-            num_neurons=0
-            output_size=0
+        num_neurons = 1
+        output_size = 1
         # X_1
         self.X_1 = nn.Sequential(
-            nn.Linear(25, num_neurons),
+            nn.Linear(20, num_neurons),
             nn.LeakyReLU(),
             nn.Dropout(0.3)
         )
         # X_2
         self.X_2 = nn.Sequential(
-            nn.Linear(25, num_neurons),
+            nn.Linear(20, num_neurons),
             nn.LeakyReLU(),
             nn.Dropout(0.3)
         )
         # X_3
         self.X_3 = nn.Sequential(
-            nn.Linear(25, num_neurons),
+            nn.Linear(20, num_neurons),
             nn.LeakyReLU(),
             nn.Dropout(0.3)
         )
         # X_4
         self.X_4 = nn.Sequential(
-            nn.Linear(25, num_neurons),
+            nn.Linear(20, num_neurons),
             nn.LeakyReLU(),
             nn.Dropout(0.3)
         )
         # X_5
         self.X_5 = nn.Sequential(
-            nn.Linear(25, num_neurons),
+            nn.Linear(20, num_neurons),
             nn.LeakyReLU(),
             nn.Dropout(0.3)
         )
         # X_6
         self.X_6 = nn.Sequential(
-            nn.Linear(25, num_neurons),
+            nn.Linear(20, num_neurons),
             nn.LeakyReLU(),
             nn.Dropout(0.3)
         )
         # X_7
         self.X_7 = nn.Sequential(
-            nn.Linear(25, num_neurons),
+            nn.Linear(20, num_neurons),
             nn.LeakyReLU(),
             nn.Dropout(0.3)
         )
         # X_8
         self.X_8 = nn.Sequential(
-            nn.Linear(25, num_neurons),
+            nn.Linear(20, num_neurons),
             nn.LeakyReLU(),
             nn.Dropout(0.3)
         )
         # X_9
         self.X_9 = nn.Sequential(
-            nn.Linear(25, num_neurons),
+            nn.Linear(20, num_neurons),
             nn.LeakyReLU(),
             nn.Dropout(0.3)
         )
         # X_10
         self.X_10 = nn.Sequential(
-            nn.Linear(25, num_neurons),
+            nn.Linear(20, num_neurons),
             nn.LeakyReLU(),
             nn.Dropout(0.3)
         )
         # X_11
         self.X_11 = nn.Sequential(
-            nn.Linear(25, num_neurons),
+            nn.Linear(20, num_neurons),
             nn.LeakyReLU(),
             nn.Dropout(0.3)
         )
         # X_12
         self.X_12 = nn.Sequential(
-            nn.Linear(25, num_neurons),
+            nn.Linear(20, num_neurons),
             nn.LeakyReLU(),
             nn.Dropout(0.3)
         )
         # X_13
         self.X_13 = nn.Sequential(
-            nn.Linear(25, num_neurons),
+            nn.Linear(20, num_neurons),
             nn.LeakyReLU(),
             nn.Dropout(0.3)
         )
-        
         
         self.output = nn.Linear(13*num_neurons, output_size)
         # self.loss = RMSELoss()
@@ -116,7 +105,7 @@ class MLP(nn.Module):
         student_output = {}
         student_output["hidden_states"]=[]
         # Interchange intervention
-        input_ids = torch.cat([input_ids[0:15], input_ids[16:]]) # Exclude CHO without scaling
+        input_ids = torch.cat([input_ids[0:10], input_ids[11:]]) # Exclude CHO without scaling
         hooks = []
         layers = [self.X_1,self.X_2,self.X_3,self.X_4,self.X_5,self.X_6,self.X_7,self.X_8,self.X_9,self.X_10,self.X_11,self.X_12, self.X_13]
         for i, layer_module in enumerate(layers):

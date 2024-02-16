@@ -6,8 +6,8 @@ import numpy as np
 from utils.t1dpatient import T1DPatient
 from utils.env import T1DSimEnv
 from utils.controller import BBController
+from utils.pump import InsulinPump
 from simglucose.sensor.cgm import CGMSensor
-from simglucose.actuator.pump import InsulinPump
 from simglucose.simulation.scenario import CustomScenario
 
 
@@ -20,13 +20,13 @@ class Simglucose(nn.Module):
         self.model = self.simulator
         self.loss = nn.MSELoss(reduction='mean')
         # specify start_time as the beginning of today
-        now = datetime.now()
-        self.start_time = datetime.combine(now.date(), datetime.min.time())
+        self.start_time = datetime(2024,2,14,8,0,0,0)
         self.pred_horizon = pred_horizon
 
     def simulator(self, 
                   pat_name, 
                   meal_size,
+                  pred_horizon,
                   # for interchange.
                   interchanged_variables=None,
                   variable_names=None,
@@ -58,10 +58,11 @@ class Simglucose(nn.Module):
         while env.time < scenario.start_time + sim_time:
             action = controller.policy(obs, reward, done, **info)
             obs, reward, done, info = env.step(action=action,
+                                               pred_horizon=pred_horizon,
                                                interchanged_variables=interchanged_variables,
                                                variable_names=variable_names,
                                                interchanged_activations=interchanged_activations)
-        return np.array(patient.state_hist)
+        return np.array(patient.state_hist), obs.CGM
 
 
     def forward(
@@ -88,23 +89,15 @@ class Simglucose(nn.Module):
         teacher_ouputs["hidden_states"]=[]
         # we perform the interchange intervention
         meal_size = float(input_ids[-11])
-        x = self.simulator(look_up,
+        x, output = self.simulator(look_up,
                            meal_size,
+                           self.pred_horizon,
                            variable_names=variable_names,
                            interchanged_variables=interchanged_variables,
                            interchanged_activations=interchanged_activations)
 
-        teacher_ouputs["hidden_states"] = np.transpose(x)[:,::3]
-
-        if self.pred_horizon == 30:
-            output_size = -10
-        elif self.pred_horizon == 45:
-            output_size = -15
-        elif self.pred_horizon == 60:
-            output_size = -20
-        else:
-            output_size=0
+        teacher_ouputs["hidden_states"] = np.transpose(x)[:,-1]
         
-        teacher_ouputs["outputs"]=torch.tensor(teacher_ouputs["hidden_states"][-1,output_size:]*0.01, dtype=torch.float32)
+        teacher_ouputs["outputs"]=torch.tensor(output*0.01, dtype=torch.float32)
 
         return teacher_ouputs

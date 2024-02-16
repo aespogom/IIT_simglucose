@@ -20,8 +20,7 @@ random.shuffle(PATIENT_IDS)
 def get_init_state(pat_name, vparams):
     ''' Get initial state of the patient'''
     params = vparams.loc[vparams.Name == pat_name].squeeze()
-    initial_state = params.iloc[2:15]
-    return list(initial_state)
+    return [params['x0_ 4'], params['x0_ 5'], params['x0_ 6'], params['x0_ 8'], params['x0_10'], params['x0_11'], params['x0_12'], params['x0_13']]
 
 def get_meal_time(pat_name):
     ''' Get time at when the patient had the first meal'''
