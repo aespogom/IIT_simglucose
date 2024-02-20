@@ -574,7 +574,7 @@ class Trainer:
                 predictions.append(pred)
 
             logger.info("Counterfactual evaluation")
-            return self.loss(torch.cat(predictions, dim=0),torch.cat(labels, dim=0))
+            return self.loss(torch.cat(predictions, dim=0),torch.stack(labels))
     
     def beh_loss(self):
         """ Behavioral loss is the percentage of inputs that student agrees with teacher """
@@ -624,5 +624,5 @@ class Trainer:
                 predictions.append(pred)
 
             logger.info("\nStandard evaluation")
-            return self.loss(torch.cat(predictions, dim=0),torch.cat(labels, dim=0))
+            return self.loss(torch.cat(predictions, dim=0),torch.stack(labels))
         
