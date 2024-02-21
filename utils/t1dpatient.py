@@ -88,7 +88,7 @@ class T1DPatient(Patient):
 
     @property
     def t(self):
-        return self._odesolver.t
+        return int(self._odesolver.t)
 
     @property
     def sample_time(self):
@@ -99,6 +99,7 @@ class T1DPatient(Patient):
             interchanged_variables=None,
             variable_names=None,
             interchanged_activations=None):
+        self._odesolver.t = int(self._odesolver.t)
         # Convert announcing meal to the meal amount to eat at the moment
         to_eat = self._announce_meal(action.CHO)
         action = action._replace(CHO=to_eat)
