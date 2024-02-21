@@ -135,19 +135,19 @@ class MLP(nn.Module):
             # if it is None, it is simply a forward for getting hidden states!
             if t_outputs is not None:
                 s_outputs = student_output["outputs"]
-                loss = self.loss(s_outputs, t_outputs)
+                loss = self.loss(s_outputs, t_outputs.unsqueeze(0))
                 student_output["loss"] = loss
         else:
             # causal loss.
             causal_s_outputs = student_output["outputs"]
-            loss = self.loss(causal_s_outputs, causal_t_outputs)
+            loss = self.loss(causal_s_outputs, causal_t_outputs.unsqueeze(0))
             student_output["loss"] = loss
 
             # measure the efficacy of the interchange.
             teacher_interchange_efficacy = (
                 self.loss(
-                    causal_t_outputs,
-                    t_outputs,
+                    causal_t_outputs.unsqueeze(0),
+                    t_outputs.unsqueeze(0),
                 )
             )
 

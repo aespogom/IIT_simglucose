@@ -70,6 +70,7 @@ if __name__ == "__main__":
         "--neuro_mapping",
         type=str,
         default="train_config/MLP_parallel.nm",
+        # default=None,
         help="Predefined neuron mapping for the interchange experiment.",
     )
     parser.add_argument(
@@ -84,7 +85,7 @@ if __name__ == "__main__":
         default=0.75,
         help="Coefficient causal loss",
     )
-    parser.add_argument("--n_epoch", type=int, default=800, help="Number of epochs.")
+    parser.add_argument("--n_epoch", type=int, default=300, help="Number of epochs.")
     parser.add_argument(
         "--gradient_accumulation_steps",
         type=int,
@@ -113,7 +114,7 @@ if __name__ == "__main__":
         "--pred_horizon",
         type=int,
         choices=[30, 45, 60],
-        default=30,
+        default=45,
         help="Prediction horizon.",
     )
     
@@ -122,7 +123,7 @@ if __name__ == "__main__":
     today = datetime.today().strftime('%Y-%m-%d')
     start = datetime.now()
     # config the runname here and overwrite.
-    run_name = f"s_MLP_t_simglucose_data_insilico_seed_56_{today}"
+    run_name = f"s_MLP_t_simglucose_data_insilico_seed_56_{today}_PH_{str(args.pred_horizon)}" if args.neuro_mapping else f"s_MLP_data_insilico_seed_56_{today}_PH_{str(args.pred_horizon)}"
     args.run_name = run_name
     args.dump_path = os.path.join(args.dump_path, args.run_name)
     trainer = prepare_trainer(args)

@@ -140,7 +140,8 @@ class T1DPatient(Patient):
         self._odesolver.set_f_params(action, self._params, self._last_Qsto,
                                      self._last_foodtaken)
         if self._odesolver.successful():
-            self._odesolver.integrate(self._odesolver.t + self.sample_time)
+            t_next = self._odesolver.t + self.sample_time
+            self._odesolver.integrate(t_next)
             self.state_hist.append(self.state)
         else:
             logger.info('ODE solver failed!!')
@@ -319,7 +320,7 @@ class T1DPatient(Patient):
         self._last_foodtaken = 0
         self.name = self._params.Name
 
-        self._odesolver = ode(self.model).set_integrator('dopri5', nsteps= 5000)
+        self._odesolver = ode(self.model).set_integrator('dopri5')
         self._odesolver.set_initial_value(self.init_state, self.t0)
 
         self._last_action = Action(CHO=0, insulin=0)
