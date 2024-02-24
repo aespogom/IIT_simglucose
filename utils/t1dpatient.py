@@ -133,33 +133,29 @@ class T1DPatient(Patient):
             for param in variable_names:
                 interchanged_activations = interchanged_variables[0]
                 interchanged_state = self.state
-                save_state = self.state
+                save_state = self.state.copy()
                 interchanged_state[param] = interchanged_activations
                 self._odesolver.set_initial_value(interchanged_state, self._odesolver.t)
     
         self._odesolver.set_f_params(action, self._params, self._last_Qsto,
                                      self._last_foodtaken)
         if self._odesolver.successful():
-            t_next = self._odesolver.t + self.sample_time
-            self._odesolver.integrate(t_next)
-            self.state_hist.append(self.state)
-        else:
-            logger.info('ODE solver failed!!')
-            logger.info(self._odesolver.y)
-            logger.info(self._odesolver.get_return_code())
-            if self._odesolver.t > 30+pred_horizon:
-                logger.info(f'Error in the time ??? {self._odesolver.t} for {self.name}')
-            elif interchanged_variables != None and save_state != None:
-                logger.info('Revert interchange intervention')
-                self._odesolver.set_initial_value(save_state, self._odesolver.t)
-                self._odesolver.set_f_params(action, self._params, self._last_Qsto,
-                                     self._last_foodtaken)
-                if self._odesolver.successful():
-                    self._odesolver.integrate(self._odesolver.t + self.sample_time)
+            try:
+                t_next = self._odesolver.t + self.sample_time
+                self._odesolver.integrate(t_next)
+                self.state_hist.append(self.state)
+            except Exception as e:
+                logger.info(f'ODE solver failed!!: {e}')
+                logger.info(self._odesolver.y)
+                logger.info(self._odesolver.get_return_code())
+                if interchanged_variables is not None and save_state is not None:
+                    logger.info('Revert interchange intervention')
+                    logger.info(save_state)
+                    self._odesolver.set_initial_value(save_state, int(self._odesolver.t))
+                    self._odesolver.integrate(t_next)
+                    pass
                 else:
-                    logger.error('The revert didnt work')
-            else:
-                logger.error('No solution :(')
+                    logger.error('No solution :(')
 
 
     @staticmethod

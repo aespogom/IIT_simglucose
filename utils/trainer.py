@@ -10,8 +10,8 @@ import time
 from pickle import dump
 from tqdm import tqdm
 from transformers import get_linear_schedule_with_warmup
-# import warnings
-# warnings.filterwarnings('ignore')  # "error", "ignore", "always", "default", "module" or "once"
+import warnings
+warnings.filterwarnings('error')  # "error", "ignore", "always", "default", "module" or "once"
 
 from dataset.glucosedataset import GlucoseDataset
 from .counterfactual_utils import deserialize_variable_name, parse_variable_name, get_activation_at, logger
