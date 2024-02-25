@@ -360,7 +360,9 @@ class Trainer:
 
         if self.n_iter % self.params.gradient_accumulation_steps == 0:
             print(f"Student outputs is: {str(s_outputs)}")
+            print(f"Teacher outputs is: {str(t_outputs)}")
             print(f"Student dual outputs is: {str(dual_s_outputs)}")
+            print(f"Teacher dual outputs is: {str(dual_t_outputs)}")
         
         self.optimize(loss)
 
@@ -574,6 +576,9 @@ class Trainer:
                 predictions.append(pred)
 
             logger.info("Counterfactual evaluation")
+            logger.info(torch.cat(predictions, dim=0))
+            logger.info("Labels")
+            logger.info(torch.stack(labels))
             return self.loss(torch.cat(predictions, dim=0),torch.stack(labels))
     
     def beh_loss(self):
@@ -624,5 +629,9 @@ class Trainer:
                 predictions.append(pred)
 
             logger.info("\nStandard evaluation")
+            logger.info("Predictions")
+            logger.info(torch.cat(predictions, dim=0))
+            logger.info("Labels")
+            logger.info(torch.stack(labels))
             return self.loss(torch.cat(predictions, dim=0),torch.stack(labels))
         
