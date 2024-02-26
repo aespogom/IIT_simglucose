@@ -22,7 +22,8 @@ class Trainer:
         self,
         params: dict,
         dataset: GlucoseDataset, 
-        val_dataset: GlucoseDataset,
+        val_dataset: Union[GlucoseDataset, None],
+        test_dataset: Union[GlucoseDataset, None],
         neuro_mapping: Union[str,None],
         student: nn.Module,
         teacher: nn.Module
@@ -79,6 +80,7 @@ class Trainer:
         logger.info("--- Dataset loaded")
         self.dataloader = dataset
         self.val_dataloader = val_dataset
+        self.test_dataloader = test_dataset
 
         logger.info("--- Initializing model optimizer")
         assert params.gradient_accumulation_steps >= 1
@@ -493,21 +495,36 @@ class Trainer:
         best_checkpoint = [checkpoint for checkpoint in current_checkpoints if str(min_loss) in checkpoint][0]
         self.student.load_state_dict(torch.load(os.path.join(self.dump_path,best_checkpoint)))
         ## TODO EVALUATE METHODS
-        ii_loss = self.ii_loss() if self.neuro_mapping else None
-        beh_loss = self.beh_loss()
-        logger.info(f"------------ II LOSS {ii_loss}") if self.neuro_mapping else None
+        ii_loss = self.ii_loss(self.val_dataloader) if self.neuro_mapping else None
+        beh_loss = self.beh_loss(self.val_dataloader)
+        logger.info(f"------------ II LOSS VAL DATA {ii_loss}") if self.neuro_mapping else None
 
-        logger.info(f"------------- BEH LOSS {beh_loss}")
+        logger.info(f"------------- BEH LOSS VAL DATA {beh_loss}")
 
-    def ii_loss(self):
+    def test(self):
+        self.student.eval()
+        if self.neuro_mapping:
+            self.teacher.eval()
+        current_checkpoints = os.listdir(self.dump_path)
+        current_loss_checkpoint = [float(loss.split('_')[-1].split('.pth')[0]) for loss in current_checkpoints if "model_epoch" in loss]
+        min_loss = min(current_loss_checkpoint)
+        best_checkpoint = [checkpoint for checkpoint in current_checkpoints if str(min_loss) in checkpoint][0]
+        self.student.load_state_dict(torch.load(os.path.join(self.dump_path,best_checkpoint)))
+        ## TODO EVALUATE METHODS
+        ii_loss = self.ii_loss(self.test_dataloader) if self.neuro_mapping else None
+        beh_loss = self.beh_loss(self.test_dataloader)
+        logger.info(f"------------ II LOSS TEST DATA {ii_loss}") if self.neuro_mapping else None
+
+        logger.info(f"------------- BEH LOSS TEST DATA {beh_loss}")
+
+    def ii_loss(self, dataset):
         """ Interchange intervention loss quantifies the extent to which the interpretable
         causal model is a proxy for the network"""
 
-        
         labels = []
         predictions = []
         with torch.no_grad():
-            for batch in self.val_dataloader:
+            for batch in dataset:
 
                 # we randomly select the pool of neurons to interchange.
                 selector = random.randint(0, len(self.deserialized_interchange_variable_mappings)-1)
@@ -581,12 +598,12 @@ class Trainer:
             logger.info(torch.stack(labels))
             return self.loss(torch.cat(predictions, dim=0),torch.stack(labels))
     
-    def beh_loss(self):
+    def beh_loss(self, dataset):
         """ Behavioral loss is the percentage of inputs that student agrees with teacher """
         labels = []
         predictions = []
         with torch.no_grad():
-            for batch in self.val_dataloader:
+            for batch in dataset:
 
                 pre_meal, post_meal, pat_names = batch
 

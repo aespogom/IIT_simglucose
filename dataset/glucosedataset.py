@@ -8,30 +8,45 @@ from sklearn.preprocessing import StandardScaler
 import torch
 from torch.utils.data import DataLoader, Dataset
 
+random.seed(56)
+
 PATIENT_PARA_FILE = os.path.join('data', 'sampled_insilico_vparams.csv')
 vparams = pd.read_csv(PATIENT_PARA_FILE)
 
 CONTROL_QUEST = os.path.join('data','sampled_insilico_quest.csv')
 quest = pd.read_csv(CONTROL_QUEST)
 
+PATIENT_PARA_FILE_TEST = os.path.join('data', 'insilico_vparams.csv')
+vparams_test = pd.read_csv(PATIENT_PARA_FILE_TEST)
+
+CONTROL_QUEST_TEST = os.path.join('data','insilico_quest.csv')
+quest_test = pd.read_csv(CONTROL_QUEST_TEST)
+
 PATIENT_IDS = [pat_name for pat_name in quest['Name']]
 random.shuffle(PATIENT_IDS)
+PATIENT_IDS_TEST = [pat_name for pat_name in quest_test['Name']]
 
 def get_init_state(pat_name, vparams):
     ''' Get initial state of the patient'''
     params = vparams.loc[vparams.Name == pat_name].squeeze()
     return [params['x0_ 4'], params['x0_ 5'], params['x0_ 6'], params['x0_ 8'], params['x0_10'], params['x0_11'], params['x0_12'], params['x0_13']]
 
-def get_meal_time(pat_name):
+def get_meal_time(pat_name, test=False):
     ''' Get time at when the patient had the first meal'''
-    PATIENT_VAL_FILE = os.path.join('data', 'insilico_validation', f'{pat_name}.csv')
+    if not test:
+        PATIENT_VAL_FILE = os.path.join('data', 'insilico_validation', f'{pat_name}.csv')
+    else:
+        PATIENT_VAL_FILE = os.path.join('data', 'insilico_test', f'{pat_name}.csv')
     validation = pd.read_csv(PATIENT_VAL_FILE)
     val_cho = validation.loc[validation.CHO > 0].iloc[0].squeeze()
     return val_cho.Time
 
-def get_gb_insulin_cho_at(pat_name, time_at):
+def get_gb_insulin_cho_at(pat_name, time_at, test=False):
     ''' Get the blood glucose level, insulin and CHO at time'''
-    PATIENT_VAL_FILE = os.path.join('data', 'insilico_validation', f'{pat_name}.csv')
+    if not test:
+        PATIENT_VAL_FILE = os.path.join('data', 'insilico_validation', f'{pat_name}.csv')
+    else:
+        PATIENT_VAL_FILE = os.path.join('data', 'insilico_test', f'{pat_name}.csv')
     validation = pd.read_csv(PATIENT_VAL_FILE)
     val_gb = validation.loc[validation.Time == str(time_at)].squeeze()
 
@@ -69,8 +84,9 @@ class GlucoseDataset(Dataset):
         output = self.data[index,-1]
         return input_sequence, output, self.pat_ids[index]
 
-def create_dataset(vparams):
+def create_dataset(vparams, vparams_test):
     ''' Collect all information for input and output tensors '''
+    # TRAIN AND VAL DATA
     data_patients = {}
     for pat_name in PATIENT_IDS:
         initial_state = get_init_state(pat_name, vparams)
@@ -87,7 +103,6 @@ def create_dataset(vparams):
 
     # split into train and test sets
     train_size = int(len(data_patients.keys()) * 0.6)
-    val_size = int(len(data_patients.keys()) * 0.2)
 
     scaler = StandardScaler()
 
@@ -103,7 +118,7 @@ def create_dataset(vparams):
     # train[:, -12] CHO
     X_train_normalized_reshaped = np.concatenate([X_train_normalized_reshaped, train[:, -12:]], axis=1)
 
-    val_ids = PATIENT_IDS[train_size:train_size+val_size]
+    val_ids = PATIENT_IDS[train_size:]
     selected_arrays = []
     for pat_id in val_ids:
         selected_arrays.append(data_patients[pat_id])
@@ -114,9 +129,23 @@ def create_dataset(vparams):
     # val[:, -12] CHO without standarization
     X_val_normalized_reshaped = np.concatenate([X_val_normalized_reshaped, val[:, -12:]], axis=1)
 
-    test_ids = PATIENT_IDS[train_size+val_size:]
+    # TEST DATA
+    data_patients = {}
+    for pat_name in PATIENT_IDS_TEST:
+        initial_state = get_init_state(pat_name, vparams_test)
+        cho_date = get_meal_time(pat_name=pat_name, test=True)
+        gb_meal, insulin, cho = get_gb_insulin_cho_at(pat_name, cho_date, test=True)
+        datetime_intervals = get_pre_meal_datetimes(cho_date)
+        temp_gb = []
+        for time_at in datetime_intervals:
+            gb, _, _ = get_gb_insulin_cho_at(pat_name, time_at, test=True)
+            temp_gb.append(gb)
+        # Append to the rest of patients
+        # CHO is appended twice: first for input data for model to be scaled, second for input data for the simulator as raw
+        data_patients[pat_name] = np.array([*initial_state, insulin, cho, cho, *temp_gb, gb_meal])
+
     selected_arrays = []
-    for pat_id in test_ids:
+    for pat_id in PATIENT_IDS_TEST:
         selected_arrays.append(data_patients[pat_id])
     test = np.stack(selected_arrays, axis=0)
     # Fit the scaler only to the first part of the data (excluding the two last columns)
@@ -127,7 +156,7 @@ def create_dataset(vparams):
 
     return  torch.from_numpy(X_train_normalized_reshaped).to(torch.float32), train_ids, \
             torch.from_numpy(X_val_normalized_reshaped).to(torch.float32), val_ids, \
-            torch.from_numpy(X_test_normalized_reshaped).to(torch.float32), test_ids
+            torch.from_numpy(X_test_normalized_reshaped).to(torch.float32), PATIENT_IDS_TEST
 
 def setup_loaders():
     AVAIL_GPUS = min(1, torch.cuda.device_count())
@@ -137,7 +166,7 @@ def setup_loaders():
     num_workers = (4 * AVAIL_GPUS) if (AVAIL_GPUS > 0) else AVAIL_CPUS
     batch_size = 2 # DUAL INPUT!
 
-    train_data, train_ids, val_data, val_ids, test_data, test_ids = create_dataset(vparams=vparams)
+    train_data, train_ids, val_data, val_ids, test_data, test_ids = create_dataset(vparams=vparams, vparams_test=vparams_test)
 
     # Aumentar size para dataset completo
     train_loader = DataLoader(

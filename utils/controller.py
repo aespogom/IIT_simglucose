@@ -7,7 +7,9 @@ import logging
 
 logger = logging.getLogger(__name__)
 CONTROL_QUEST = os.path.join('data','sampled_insilico_quest.csv')
+CONTROL_QUEST_TEST = os.path.join('data','insilico_quest.csv')
 PATIENT_PARA_FILE = os.path.join('data', 'sampled_insilico_vparams.csv')
+PATIENT_PARA_FILE_TEST = os.path.join('data', 'insilico_vparams.csv')
 
 
 class BBController(Controller):
@@ -17,8 +19,8 @@ class BBController(Controller):
     baseline when developing a more advanced controller.
     """
     def __init__(self, target=140):
-        self.quest = pd.read_csv(CONTROL_QUEST)
-        self.patient_params = pd.read_csv(PATIENT_PARA_FILE)
+        self.quest = pd.concat([pd.read_csv(CONTROL_QUEST), pd.read_csv(CONTROL_QUEST_TEST)  ], axis=0, ignore_index=True)
+        self.patient_params = pd.concat([pd.read_csv(PATIENT_PARA_FILE), pd.read_csv(PATIENT_PARA_FILE_TEST)  ], axis=0, ignore_index=True)
         self.target = target
 
     def policy(self, observation, reward, done, **kwargs):

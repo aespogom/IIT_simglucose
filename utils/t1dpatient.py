@@ -12,6 +12,7 @@ Action = namedtuple("patient_action", ['CHO', 'insulin'])
 Observation = namedtuple("observation", ['Gsub'])
 
 PATIENT_PARA_FILE = os.path.join('data', 'sampled_insilico_vparams.csv')
+PATIENT_PARA_FILE_TEST = os.path.join('data', 'insilico_vparams.csv')
 
 
 class T1DPatient(Patient):
@@ -63,8 +64,12 @@ class T1DPatient(Patient):
             adult#001 - adult#001
             child#001 - child#010
         '''
-        patient_params = pd.read_csv(PATIENT_PARA_FILE)
-        params = patient_params.loc[patient_params.Name == name].squeeze()
+        if "test" in name:
+            patient_params = pd.read_csv(PATIENT_PARA_FILE_TEST)
+            params = patient_params.loc[patient_params.Name == name].squeeze()
+        else:
+            patient_params = pd.read_csv(PATIENT_PARA_FILE)
+            params = patient_params.loc[patient_params.Name == name].squeeze()
         return cls(params, **kwargs)
 
     @property
