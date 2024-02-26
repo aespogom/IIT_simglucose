@@ -6,7 +6,7 @@ import shutil
 import torch
 from dataset.glucosedataset import setup_loaders
 from models.teacher import simglucose as teacher
-from models.student import MLP as student
+from models.student import MLP_tree as student
 from utils.counterfactual_utils import set_seed, logger
 from utils.trainer import Trainer
 
@@ -70,7 +70,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--neuro_mapping",
         type=str,
-        # default="train_config/MLP_parallel.nm",
+        # default="train_config/MLP_tree.nm",
         default=None,
         help="Predefined neuron mapping for the interchange experiment.",
     )
@@ -115,7 +115,7 @@ if __name__ == "__main__":
         "--pred_horizon",
         type=int,
         choices=[30, 45, 60],
-        default=60,
+        default=30,
         help="Prediction horizon.",
     )
     
@@ -124,7 +124,7 @@ if __name__ == "__main__":
     today = datetime.today().strftime('%Y-%m-%d')
     start = datetime.now()
     # config the runname here and overwrite.
-    run_name = f"s_MLP_t_simglucose_data_insilico_seed_56_{today}_PH_{str(args.pred_horizon)}" if args.neuro_mapping else f"s_MLP_data_insilico_seed_56_{today}_PH_{str(args.pred_horizon)}"
+    run_name = f"s_MLP_tree_t_simglucose_data_insilico_seed_56_{today}_PH_{str(args.pred_horizon)}" if args.neuro_mapping else f"s_MLP_tree_data_insilico_seed_56_{today}_PH_{str(args.pred_horizon)}"
     args.run_name = run_name
     args.dump_path = os.path.join(args.dump_path, args.run_name)
     trainer = prepare_trainer(args)
