@@ -3,3 +3,6 @@ models/teacher/__pycache__/*
 utils/__pycache__/*
 dataset/__pycache__/*
 models/student/__pycache__/*
+__pycache__/main_MLP_tree.cpython-39.pyc
+__pycache__/main_MLP.cpython-39.pyc
+results/__pycache__/visualizations.cpython-39.pyc
