@@ -517,6 +517,10 @@ class Trainer:
 
         logger.info(f"------------- BEH LOSS TEST DATA {beh_loss}")
 
+        matrix = self.clarke_error_grid_analysis(self.test_dataloader)
+
+        logger.info(f"------------- EGA TEST DATA {matrix}")
+
     def ii_loss(self, dataset):
         """ Interchange intervention loss quantifies the extent to which the interpretable
         causal model is a proxy for the network"""
@@ -651,4 +655,91 @@ class Trainer:
             logger.info("Labels")
             logger.info(torch.stack(labels))
             return self.loss(torch.cat(predictions, dim=0),torch.stack(labels))
+    
+    def clarke_error_grid_analysis(self, dataset):
+        """
+        Perform Clarke Error Grid Analysis on glucose predictions.
+
+        Returns:
+        - A tensor of categories (0-4 corresponding to zones A-E) for each prediction.
+        """
+        labels = []
+        predictions = []
+        with torch.no_grad():
+            for batch in dataset:
+
+                pre_meal, post_meal, pat_names = batch
+
+                source = pre_meal[0, :]
+                source_labels = post_meal[0]
+                
+                base = pre_meal[-1, :]
+                base_labels = post_meal[-1]
+                
+                look_up_source, look_up_base = pat_names
+
+                # Run the causal model:
+                outputs_teacher = self.teacher(
+                    input_ids=source, # source input
+                    labels=source_labels,
+                    look_up=look_up_source
+                )
+                labels.append(outputs_teacher["outputs"]*100)
+                # Run the neural model:
+                outputs_student = self.student(
+                    input_ids=source # source input
+                )
+                # Get the neural model's prediction
+                pred = outputs_student['outputs']
+                predictions.append(pred*100)
+
+                # Run the causal model:
+                outputs_teacher = self.teacher(
+                    input_ids=base, # base input
+                    labels=base_labels,
+                    look_up=look_up_base
+                )
+                labels.append(outputs_teacher["outputs"]*100)
+                # Run the neural model:
+                outputs_student = self.student(
+                    input_ids=base # base input
+                )
+                # Get the neural model's prediction
+                pred = outputs_student['outputs']
+                predictions.append(pred*100)
+        
+        y_pred = torch.cat(predictions, dim=0)
+        y_true = torch.stack(labels)
+        # Define Clarke Error Grid Zones
+        # Zone A
+        zone_a = lambda x, y: ((y <= 70) & (x <= 70)) | \
+                            ((x > 70) & (x <= 180) & (y > 70) & (y <= 180)) | \
+                            ((x > 180) & (y > 180) & (y <= (1.2 * x)) & (y >= (0.8 * x)))
+        # Zone B
+        zone_b = lambda x, y: ((x <= 70) & (y > 70) & (y < 180)) | \
+                            ((x < 290) & (y <= 70)) | \
+                            ((x > 180) & (y > 70) & (y < 180)) | \
+                            ((x > 240) & (y > 180) & (y < (1.2 * x))) | \
+                            ((x > 180) & (y > (0.8 * x)) & (y <= x))
+        # Zone C
+        zone_c = lambda x, y: ((x < 290) & (y > 180) & (y >= (1.2 * x))) | \
+                            ((x <= 70) & (y >= 180)) | \
+                            ((x > 70) & (x <= 180) & (y > 180) & (y < (0.8 * x)))
+        # Zone D
+        zone_d = lambda x, y: ((x >= 290) & (y <= 70)) | \
+                            ((x > 70) & (x < 180) & (y <= 70))
+        # Zone E
+        zone_e = lambda x, y: ((x <= 70) & (y >= 290)) | \
+                            ((x >= 180) & (x < 290) & (y <= (0.8 * x))) | \
+                            ((x >= 290) & (y > 70) & (y < 180))
+
+        # Classify each pair into a zone
+        categories = torch.zeros(y_true.shape)
+        categories[zone_a(y_true, y_pred)] = 0  # Zone A
+        categories[zone_b(y_true, y_pred)] = 1  # Zone B
+        categories[zone_c(y_true, y_pred)] = 2  # Zone C
+        categories[zone_d(y_true, y_pred)] = 3  # Zone D
+        categories[zone_e(y_true, y_pred)] = 4  # Zone E
+
+        return categories
         
