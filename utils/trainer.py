@@ -12,10 +12,11 @@ from tqdm import tqdm
 from transformers import get_linear_schedule_with_warmup
 import warnings
 warnings.filterwarnings('error')  # "error", "ignore", "always", "default", "module" or "once"
-
+import matplotlib.pyplot as plt
 from dataset.glucosedataset import GlucoseDataset
 from .counterfactual_utils import deserialize_variable_name, parse_variable_name, get_activation_at, logger
 from .early_stopper import EarlyStopper
+from .ega import clarke_error_grid
 
 class Trainer:
     def __init__(
@@ -710,36 +711,9 @@ class Trainer:
         
         y_pred = torch.cat(predictions, dim=0)
         y_true = torch.stack(labels)
-        # Define Clarke Error Grid Zones
-        # Zone A
-        zone_a = lambda x, y: ((y <= 70) & (x <= 70)) | \
-                            ((x > 70) & (x <= 180) & (y > 70) & (y <= 180)) | \
-                            ((x > 180) & (y > 180) & (y <= (1.2 * x)) & (y >= (0.8 * x)))
-        # Zone B
-        zone_b = lambda x, y: ((x <= 70) & (y > 70) & (y < 180)) | \
-                            ((x < 290) & (y <= 70)) | \
-                            ((x > 180) & (y > 70) & (y < 180)) | \
-                            ((x > 240) & (y > 180) & (y < (1.2 * x))) | \
-                            ((x > 180) & (y > (0.8 * x)) & (y <= x))
-        # Zone C
-        zone_c = lambda x, y: ((x < 290) & (y > 180) & (y >= (1.2 * x))) | \
-                            ((x <= 70) & (y >= 180)) | \
-                            ((x > 70) & (x <= 180) & (y > 180) & (y < (0.8 * x)))
-        # Zone D
-        zone_d = lambda x, y: ((x >= 290) & (y <= 70)) | \
-                            ((x > 70) & (x < 180) & (y <= 70))
-        # Zone E
-        zone_e = lambda x, y: ((x <= 70) & (y >= 290)) | \
-                            ((x >= 180) & (x < 290) & (y <= (0.8 * x))) | \
-                            ((x >= 290) & (y > 70) & (y < 180))
 
-        # Classify each pair into a zone
-        categories = torch.zeros(y_true.shape)
-        categories[zone_a(y_true, y_pred)] = 0  # Zone A
-        categories[zone_b(y_true, y_pred)] = 1  # Zone B
-        categories[zone_c(y_true, y_pred)] = 2  # Zone C
-        categories[zone_d(y_true, y_pred)] = 3  # Zone D
-        categories[zone_e(y_true, y_pred)] = 4  # Zone E
-
-        return categories
+        plot, zone = clarke_error_grid(y_true, y_pred, "Clarke Error Grid Analysis")
+        plot.savefig(os.path.join(self.dump_path,"EGA.png"))
+        plot.close()
+        return zone
         
