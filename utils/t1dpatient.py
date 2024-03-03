@@ -16,7 +16,7 @@ PATIENT_PARA_FILE_TEST = os.path.join('data', 'insilico_vparams.csv')
 
 
 class T1DPatient(Patient):
-    SAMPLE_TIME = 1  # min
+    SAMPLE_TIME = 3  # min
     EAT_RATE = 5  # g/min CHO
 
     def __init__(self,
@@ -103,7 +103,8 @@ class T1DPatient(Patient):
             pred_horizon,
             interchanged_variables=None,
             variable_names=None,
-            interchanged_activations=None):
+            interchanged_activations=None,
+            timeseries_iit=False):
         self._odesolver.t = int(self._odesolver.t)
         # Convert announcing meal to the meal amount to eat at the moment
         to_eat = self._announce_meal(action.CHO)
@@ -131,9 +132,27 @@ class T1DPatient(Patient):
         # Update last input
         self._last_action = action
 
-        # IIT
         save_state = None
-        if variable_names != None and int(self._odesolver.t)==30+pred_horizon-1:
+        # IIT for MLP scaled
+        if variable_names != None and timeseries_iit:
+            dict_mapping = {}
+            start = 0
+            stop = 13
+            for last_minute in range(30, 30+pred_horizon+1, self.sample_time):
+                dict_mapping[str(last_minute)] = range(start, stop)
+                start = stop
+                stop = stop+13
+            assert interchanged_variables != None
+            for param in variable_names:
+                if str(int(self._odesolver.t)) in dict_mapping and param in dict_mapping[str(int(self._odesolver.t))]:
+                    interchanged_activations = interchanged_variables[0]
+                    interchanged_state = self.state
+                    save_state = self.state.copy()
+                    index_param = dict_mapping[str(int(self._odesolver.t))].index(param)
+                    interchanged_state[index_param] = interchanged_activations
+                    self._odesolver.set_initial_value(interchanged_state, self._odesolver.t)
+        elif variable_names != None and int(self._odesolver.t)==30+pred_horizon-1 and not timeseries_iit:
+            # IIT for MLP tree or MLP parallel
             assert interchanged_variables != None
             for param in variable_names:
                 interchanged_activations = interchanged_variables[0]
@@ -141,7 +160,7 @@ class T1DPatient(Patient):
                 save_state = self.state.copy()
                 interchanged_state[param] = interchanged_activations
                 self._odesolver.set_initial_value(interchanged_state, self._odesolver.t)
-    
+
         self._odesolver.set_f_params(action, self._params, self._last_Qsto,
                                      self._last_foodtaken)
         if self._odesolver.successful():

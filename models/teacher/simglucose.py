@@ -14,7 +14,7 @@ from simglucose.simulation.scenario import CustomScenario
 class Simglucose(nn.Module):
     """
     """
-    def __init__(self, pred_horizon):
+    def __init__(self, pred_horizon, timeseries_iit = False):
         super().__init__()
         # Oracle simulator
         self.model = self.simulator
@@ -22,6 +22,7 @@ class Simglucose(nn.Module):
         # specify start_time as the beginning of today
         self.start_time = datetime(2024,2,14,8,0,0,0)
         self.pred_horizon = pred_horizon
+        self.timeseries_iit = timeseries_iit
 
     def simulator(self, 
                   pat_name, 
@@ -61,7 +62,8 @@ class Simglucose(nn.Module):
                                                pred_horizon=pred_horizon,
                                                interchanged_variables=interchanged_variables,
                                                variable_names=variable_names,
-                                               interchanged_activations=interchanged_activations)
+                                               interchanged_activations=interchanged_activations,
+                                               timeseries_iit = self.timeseries_iit)
         return np.array(patient.state_hist), obs.CGM
 
 
@@ -96,7 +98,7 @@ class Simglucose(nn.Module):
                            interchanged_variables=interchanged_variables,
                            interchanged_activations=interchanged_activations)
 
-        teacher_ouputs["hidden_states"] = np.transpose(x)[:,-1]
+        teacher_ouputs["hidden_states"] = np.transpose(x)[:,-1] if not self.timeseries_iit else np.transpose(x)[:,10:].reshape(-1)
         
         teacher_ouputs["outputs"]=torch.tensor(output*0.01, dtype=torch.float32)
 

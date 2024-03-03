@@ -45,12 +45,14 @@ class T1DSimEnv(object):
     def time(self):
         return self.scenario.start_time + timedelta(minutes=self.patient.t)
 
-    def mini_step(self, action,
-                  pred_horizon,
+    def mini_step(self,
+                action,
+                pred_horizon,
                 # for interchange.
                 interchanged_variables=None,
                 variable_names=None,
-                interchanged_activations=None):
+                interchanged_activations=None,
+                timeseries_iit=False):
         # current action
         patient_action = self.scenario.get_action(self.time)
         basal = self.pump.basal(action.basal)
@@ -64,7 +66,8 @@ class T1DSimEnv(object):
                         pred_horizon=pred_horizon,
                         interchanged_variables=interchanged_variables,
                         variable_names=variable_names,
-                        interchanged_activations=interchanged_activations)
+                        interchanged_activations=interchanged_activations,
+                        timeseries_iit=timeseries_iit)
 
         # next observation
         BG = self.patient.observation.Gsub
@@ -78,6 +81,7 @@ class T1DSimEnv(object):
             interchanged_variables=None,
             variable_names=None,
             interchanged_activations=None,
+            timeseries_iit = False,
             reward_fun=risk_diff):
         """
         action is a namedtuple with keys: basal, bolus
@@ -93,7 +97,8 @@ class T1DSimEnv(object):
                                                                    pred_horizon=pred_horizon,
                                                                    variable_names=variable_names,
                                                                    interchanged_variables=interchanged_variables,
-                                                                   interchanged_activations=interchanged_activations)
+                                                                   interchanged_activations=interchanged_activations,
+                                                                   timeseries_iit = timeseries_iit)
             CHO += tmp_CHO / self.sample_time
             insulin += tmp_insulin / self.sample_time
             BG += tmp_BG / self.sample_time
