@@ -16,7 +16,7 @@ PATIENT_PARA_FILE_TEST = os.path.join('data', 'insilico_vparams.csv')
 
 
 class T1DPatient(Patient):
-    SAMPLE_TIME = 3  # min
+    SAMPLE_TIME = 1  # min
     EAT_RATE = 5  # g/min CHO
 
     def __init__(self,
@@ -138,7 +138,7 @@ class T1DPatient(Patient):
             dict_mapping = {}
             start = 0
             stop = 13
-            for last_minute in range(30, 30+pred_horizon+1, self.sample_time):
+            for last_minute in range(30, 30+pred_horizon+1, 3):
                 dict_mapping[str(last_minute)] = range(start, stop)
                 start = stop
                 stop = stop+13
