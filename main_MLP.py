@@ -16,8 +16,8 @@ def prepare_trainer(args):
     args.seed=56
     set_seed(args)
     
-    if os.path.exists(args.dump_path):
-        shutil.rmtree(args.dump_path)
+    # if os.path.exists(args.dump_path):
+    #     shutil.rmtree(args.dump_path)
 
     if not os.path.exists(args.dump_path):
         os.makedirs(args.dump_path)
@@ -64,7 +64,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--dump_path",
         type=str,
-        default="results",
+        default=os.path.join("results","MLP_parallel"),
         help="The output directory (log, checkpoints, parameters, etc.)"
     )
     parser.add_argument(
@@ -115,26 +115,31 @@ if __name__ == "__main__":
         "--pred_horizon",
         type=int,
         choices=[30, 45, 60],
-        default=60,
-        help="Prediction horizon.",
+        help="Prediction horizon."
+    )
+    parser.add_argument(
+        "--date_experiment",
+        type=str,
+        default=datetime.today().strftime('%Y-%m-%d'),
+        help="Date of the experiemnt in format YYYY-MM-DD."
     )
     
     args = parser.parse_args()
     
-    today = datetime.today().strftime('%Y-%m-%d')
-    start = datetime.now()
     # config the runname here and overwrite.
-    run_name = f"s_MLP_t_simglucose_data_insilico_seed_56_{today}_PH_{str(args.pred_horizon)}" if args.neuro_mapping else f"s_MLP_data_insilico_seed_56_{today}_PH_{str(args.pred_horizon)}"
+    run_name = f"s_MLP_t_simglucose_data_insilico_seed_56_{args.date_experiment}_PH_{str(args.pred_horizon)}" if args.neuro_mapping else f"s_MLP_data_insilico_seed_56_{args.date_experiment}_PH_{str(args.pred_horizon)}"
     args.run_name = run_name
     args.dump_path = os.path.join(args.dump_path, args.run_name)
     trainer = prepare_trainer(args)
     logger.info("Start training.")
     try:
-        trainer.train()
+        if args.date_experiment == datetime.today().strftime('%Y-%m-%d'):
+            trainer.train()
+        else:
+            pass
     except Exception as e:
         logger.error(f"Something went wrong :( --> {e}")
     finally:
         ## TODO EVALUATE METHODS
         trainer.evaluate()
         trainer.test()
-    print(f'Finished at {start - datetime.now()}')
