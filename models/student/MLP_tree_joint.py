@@ -93,7 +93,7 @@ class MLP(nn.Module):
         student_output = {}
         student_output["hidden_states"]=[None] * 13
         # Interchange intervention
-        x = torch.cat([input_ids[0:10], input_ids[11:]]) # Exclude CHO without scaling
+        x = torch.cat([input_ids[0:10], input_ids[12:]]) # Exclude CHO and insulin without scaling # Exclude CHO without scaling
         hooks = []
         
         # first level

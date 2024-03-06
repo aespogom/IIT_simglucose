@@ -11,77 +11,113 @@ class MLP(nn.Module):
         output_size = 1
         # X_1
         self.X_1 = nn.Sequential(
-            nn.Linear(input_size, num_neurons),
+            nn.Linear(input_size, int(num_neurons/2)),
+            nn.LeakyReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(int(num_neurons/2), num_neurons),
             nn.LeakyReLU(),
             nn.Dropout(0.3)
         )
         # X_10
         self.X_10 = nn.Sequential(
-            nn.Linear(input_size, num_neurons),
+            nn.Linear(input_size, int(num_neurons/2)),
+            nn.LeakyReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(int(num_neurons/2), num_neurons),
             nn.LeakyReLU(),
             nn.Dropout(0.3)
         )
         # X_11
         self.X_11 = nn.Sequential(
-            nn.Linear(input_size, num_neurons),
+            nn.Linear(input_size, int(num_neurons/2)),
+            nn.LeakyReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(int(num_neurons/2), num_neurons),
             nn.LeakyReLU(),
             nn.Dropout(0.3)
         )
         # X_12
         self.X_12 = nn.Sequential(
-            nn.Linear(input_size, num_neurons),
+            nn.Linear(input_size, int(num_neurons/2)),
+            nn.LeakyReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(int(num_neurons/2), num_neurons),
             nn.LeakyReLU(),
             nn.Dropout(0.3)
         )
         # X_5
         self.X_5 = nn.Sequential(
-            nn.Linear(input_size, num_neurons),
+            nn.Linear(input_size, int(num_neurons/2)),
+            nn.LeakyReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(int(num_neurons/2), num_neurons),
             nn.LeakyReLU(),
             nn.Dropout(0.3)
         )
 
         # X_2
         self.X_2 = nn.Sequential(
-            nn.Linear(num_neurons, num_neurons),
+            nn.Linear(num_neurons, int(num_neurons/2)),
+            nn.LeakyReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(int(num_neurons/2), num_neurons),
             nn.LeakyReLU(),
             nn.Dropout(0.3)
         )
         # X_3
         self.X_3 = nn.Sequential(
-            nn.Linear(num_neurons, num_neurons),
+            nn.Linear(num_neurons, int(num_neurons/2)),
+            nn.LeakyReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(int(num_neurons/2), num_neurons),
             nn.LeakyReLU(),
             nn.Dropout(0.3)
         )
 
         # X_6
         self.X_6 = nn.Sequential(
-            nn.Linear(3*num_neurons, num_neurons),
+            nn.Linear(3*num_neurons, int(num_neurons/2)),
+            nn.LeakyReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(int(num_neurons/2), num_neurons),
             nn.LeakyReLU(),
             nn.Dropout(0.3)
         )
         # X_4
         self.X_4 = nn.Sequential(
-            nn.Linear(3*num_neurons, num_neurons),
+            nn.Linear(3*num_neurons, int(num_neurons/2)),
+            nn.LeakyReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(int(num_neurons/2), num_neurons),
             nn.LeakyReLU(),
             nn.Dropout(0.3)
         )
         
         # X_8
         self.X_8 = nn.Sequential(
-            nn.Linear(num_neurons, num_neurons),
+            nn.Linear(num_neurons, int(num_neurons/2)),
+            nn.LeakyReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(int(num_neurons/2), num_neurons),
             nn.LeakyReLU(),
             nn.Dropout(0.3)
         )
         # X_9
         self.X_9 = nn.Sequential(
-            nn.Linear(num_neurons, num_neurons),
+            nn.Linear(num_neurons, int(num_neurons/2)),
+            nn.LeakyReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(int(num_neurons/2), num_neurons),
             nn.LeakyReLU(),
             nn.Dropout(0.3)
         )
 
         # X_13
         self.X_13 = nn.Sequential(
-            nn.Linear(num_neurons, output_size),
+            nn.Linear(num_neurons, int(num_neurons/2)),
+            nn.LeakyReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(int(num_neurons/2), output_size),
             nn.LeakyReLU(),
             nn.Dropout(0.3)
         )
@@ -105,7 +141,7 @@ class MLP(nn.Module):
         student_output = {}
         student_output["hidden_states"]=[None] * 13
         # Interchange intervention
-        x = torch.cat([input_ids[0:10], input_ids[11:]]) # Exclude CHO without scaling
+        x = torch.cat([input_ids[0:10], input_ids[12:]]) # Exclude CHO and insulin without scaling # Exclude CHO without scaling
         hooks = []
         
         # first level
