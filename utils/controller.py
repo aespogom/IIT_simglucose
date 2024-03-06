@@ -18,10 +18,11 @@ class BBController(Controller):
     Diabetes patient. The performance of this controller can serve as a
     baseline when developing a more advanced controller.
     """
-    def __init__(self, target=140):
+    def __init__(self, insulin_dosage, target=140):
         self.quest = pd.concat([pd.read_csv(CONTROL_QUEST), pd.read_csv(CONTROL_QUEST_TEST)  ], axis=0, ignore_index=True)
         self.patient_params = pd.concat([pd.read_csv(PATIENT_PARA_FILE), pd.read_csv(PATIENT_PARA_FILE_TEST)  ], axis=0, ignore_index=True)
         self.target = target
+        self.insulin_dosage = insulin_dosage
 
     def policy(self, observation, reward, done, **kwargs):
         sample_time = kwargs.get('sample_time', 1)
@@ -66,9 +67,10 @@ class BBController(Controller):
             # logger.info('Calculating bolus ...')
             # logger.info(f'Meal = {meal} g/min')
             # logger.info(f'glucose = {glucose}')
-            bolus = (
-                (meal * env_sample_time) / quest.CR.values + (glucose > 150) *
-                (glucose - self.target) / quest.CF.values).item()  # unit: U
+            # bolus = (
+            #     (meal * env_sample_time) / quest.CR.values + (glucose > 150) *
+            #     (glucose - self.target) / quest.CF.values).item()  # unit: U
+            bolus = self.insulin_dosage - basal
         else:
             bolus = 0  # unit: U
 
@@ -76,7 +78,7 @@ class BBController(Controller):
         # The simulation environment does not treat basal and bolus
         # differently. The unit of Action.basal and Action.bolus are the same
         # (U/min).
-        bolus = bolus / env_sample_time  # unit: U/min
+        # bolus = bolus / env_sample_time  # unit: U/min
         return Action(basal=basal, bolus=bolus)
 
     def reset(self):

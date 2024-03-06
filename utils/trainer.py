@@ -518,7 +518,7 @@ class Trainer:
 
         logger.info(f"------------- BEH LOSS TEST DATA {beh_loss}")
 
-        matrix = self.clarke_error_grid_analysis(self.test_dataloader)
+        matrix = self.clarke_error_grid_analysis(self.test_dataloader, "test")
 
         logger.info(f"------------- EGA TEST DATA {matrix}")
 
@@ -597,10 +597,10 @@ class Trainer:
                 pred = outputs_student['outputs']
                 predictions.append(pred)
 
-            logger.info("Counterfactual evaluation")
-            logger.info(torch.cat(predictions, dim=0))
-            logger.info("Labels")
-            logger.info(torch.stack(labels))
+            # logger.info("Counterfactual evaluation")
+            # logger.info(torch.cat(predictions, dim=0))
+            # logger.info("Labels")
+            # logger.info(torch.stack(labels))
             return self.loss(torch.cat(predictions, dim=0),torch.stack(labels))
     
     def beh_loss(self, dataset):
@@ -650,14 +650,14 @@ class Trainer:
                 pred = outputs_student['outputs']
                 predictions.append(pred)
 
-            logger.info("\nStandard evaluation")
-            logger.info("Predictions")
-            logger.info(torch.cat(predictions, dim=0))
-            logger.info("Labels")
-            logger.info(torch.stack(labels))
+            # logger.info("\nStandard evaluation")
+            # logger.info("Predictions")
+            # logger.info(torch.cat(predictions, dim=0))
+            # logger.info("Labels")
+            # logger.info(torch.stack(labels))
             return self.loss(torch.cat(predictions, dim=0),torch.stack(labels))
     
-    def clarke_error_grid_analysis(self, dataset):
+    def clarke_error_grid_analysis(self, dataset, mode):
         """
         Perform Clarke Error Grid Analysis on glucose predictions.
 
@@ -711,9 +711,12 @@ class Trainer:
         
         y_pred = torch.cat(predictions, dim=0)
         y_true = torch.stack(labels)
-
+        logger.info("Predictions")
+        logger.info(y_pred)
+        logger.info("Labels")
+        logger.info(labels)
         plot, zone = clarke_error_grid(y_true, y_pred, "Clarke Error Grid Analysis")
-        plot.savefig(os.path.join(self.dump_path,"EGA.png"))
+        plot.savefig(os.path.join(self.dump_path,f"EGA_{mode}.png"))
         plot.close()
         return zone
         

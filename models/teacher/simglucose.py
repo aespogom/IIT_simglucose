@@ -14,7 +14,11 @@ from simglucose.simulation.scenario import CustomScenario
 class Simglucose(nn.Module):
     """
     """
-    def __init__(self, pred_horizon, timeseries_iit = False):
+    def __init__(
+            self,
+            pred_horizon,
+            timeseries_iit = False
+        ):
         super().__init__()
         # Oracle simulator
         self.model = self.simulator
@@ -23,26 +27,29 @@ class Simglucose(nn.Module):
         self.start_time = datetime(2024,2,14,8,0,0,0)
         self.pred_horizon = pred_horizon
         self.timeseries_iit = timeseries_iit
+        self.time_env_sample = 3
 
     def simulator(self, 
                   pat_name, 
                   meal_size,
+                  insulin_dosage,
                   pred_horizon,
                   # for interchange.
                   interchanged_variables=None,
                   variable_names=None,
                   interchanged_activations=None):
         # Create a simulation environment
+        pat_name = pat_name.replace("_hyper", "").replace("_hypo", "")
         patient = T1DPatient.withName(name=pat_name)
         sensor = CGMSensor.withName('Dexcom', seed=1)
         pump = InsulinPump.withName('Insulet')
         # custom scenario is a list of tuples (time in hours, meal_size)
-        scen = [(0.5, meal_size)]
+        scen = [(0.5, meal_size*self.time_env_sample)]
         scenario = CustomScenario(start_time=self.start_time, scenario=scen)
         env = T1DSimEnv(patient, sensor, pump, scenario)
 
         # Create a controller
-        controller = BBController()
+        controller = BBController(insulin_dosage=insulin_dosage)
 
         controller.reset()
         obs, reward, done, info = env.reset()
@@ -91,8 +98,10 @@ class Simglucose(nn.Module):
         teacher_ouputs["hidden_states"]=[]
         # we perform the interchange intervention
         meal_size = float(input_ids[-11])
+        insulin_dosage = float(input_ids[-12])
         x, output = self.simulator(look_up,
                            meal_size,
+                           insulin_dosage,
                            self.pred_horizon,
                            variable_names=variable_names,
                            interchanged_variables=interchanged_variables,
