@@ -81,7 +81,7 @@ class MLP(nn.Module):
 
         # X_13
         self.X_13 = nn.Sequential(
-            nn.Linear(num_neurons, num_neurons),
+            nn.Linear(num_neurons, output_size),
             nn.LeakyReLU(),
             nn.Dropout(0.3)
         )
