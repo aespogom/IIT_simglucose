@@ -114,7 +114,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--pred_horizon",
         type=int,
-        choices=[30, 45, 60],
+        choices=[30, 45, 60, 120],
         help="Prediction horizon.",
     )
     parser.add_argument(

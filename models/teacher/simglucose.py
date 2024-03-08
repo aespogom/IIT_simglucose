@@ -60,6 +60,8 @@ class Simglucose(nn.Module):
             sim_time = timedelta(hours=1, minutes=15)
         elif self.pred_horizon == 60:
             sim_time = timedelta(hours=1, minutes=30)
+        elif self.pred_horizon == 120:
+            sim_time = timedelta(hours=2)
         else:
             sim_time=0
 
