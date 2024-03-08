@@ -1,10 +1,18 @@
+import os
 from pickle import load
 from matplotlib.pylab import plt
 from numpy import arange
- 
+
+parent_folder = input("Which is your student model? [MLP_parallel, MLP_tree, MLP_joint, MLP_scaled]")
+assert parent_folder in ["MLP_parallel", "MLP_tree", "MLP_joint", "MLP_scaled"]
+
+date_exp = input("What is the date of the experiment (%YYYY-MM-DD)")
+
+pred_h = input("What is your PH [30,45,60]")
+assert pred_h in ["30","45","60"]
 # Load the training and validation loss dictionaries
-train_loss = load(open('s_MLP_t_simglucose_data_insilico_seed_56_2024-02-18/train_loss.pkl', 'rb'))
-val_loss = load(open('s_MLP_t_simglucose_data_insilico_seed_56_2024-02-18/ii_loss.pkl', 'rb'))
+train_loss = load(open(os.path.join('results',parent_folder,f's_{parent_folder}_t_simglucose_data_insilico_seed_56_{date_exp}_PH_{pred_h}','train_loss.pkl'), 'rb'))
+val_loss = load(open(os.path.join('results',parent_folder,f's_{parent_folder}_t_simglucose_data_insilico_seed_56_{date_exp}_PH_{pred_h}','ii_loss.pkl'), 'rb'))
 
 assert len(train_loss)==len(val_loss)
 # Generate a sequence of integers to represent the epoch numbers
