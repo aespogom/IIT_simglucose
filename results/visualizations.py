@@ -8,8 +8,8 @@ assert parent_folder in ["MLP_parallel", "MLP_tree", "MLP_joint", "MLP_scaled"]
 
 date_exp = input("What is the date of the experiment (%YYYY-MM-DD)")
 
-pred_h = input("What is your PH [30,45,60]")
-assert pred_h in ["30","45","60"]
+pred_h = input("What is your PH [30,45,60,120]")
+assert pred_h in ["30","45","60", "120"]
 # Load the training and validation loss dictionaries
 train_loss = load(open(os.path.join('results',parent_folder,f's_{parent_folder}_t_simglucose_data_insilico_seed_56_{date_exp}_PH_{pred_h}','train_loss.pkl'), 'rb'))
 val_loss = load(open(os.path.join('results',parent_folder,f's_{parent_folder}_t_simglucose_data_insilico_seed_56_{date_exp}_PH_{pred_h}','ii_loss.pkl'), 'rb'))
