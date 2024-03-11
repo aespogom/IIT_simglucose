@@ -1,0 +1,1028 @@
+{
+    "interchange_variable_mappings": [
+        {
+            "teacher_variable_names": [
+                "$L:0$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:0$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:1$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:1$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:2$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:2$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:4$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:4$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:6$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:6$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:7$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:7$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:8$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:8$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:9$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:9$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:10$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:10$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:11$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:11$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:12$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:12$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:13$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:13$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:14$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:14$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:15$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:15$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:16$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:16$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:17$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:17$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:18$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:18$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:19$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:19$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:20$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:20$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:21$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:21$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:22$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:22$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:23$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:23$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:24$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:24$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:25$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:25$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:26$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:26$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:27$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:27$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:28$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:28$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:29$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:29$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:30$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:30$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:31$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:31$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:32$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:32$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:33$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:33$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:34$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:34$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:35$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:35$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:36$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:36$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:37$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:37$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:38$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:38$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:39$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:39$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:40$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:40$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:41$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:41$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:42$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:42$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:43$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:43$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:44$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:44$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:45$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:45$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:46$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:46$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:47$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:47$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:48$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:48$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:49$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:49$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:50$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:50$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:51$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:51$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:52$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:52$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:53$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:53$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:54$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:54$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:55$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:55$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:56$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:56$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:57$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:57$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:58$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:58$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:59$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:59$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:60$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:60$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:61$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:61$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:62$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:62$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:63$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:63$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:64$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:64$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:65$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:65$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:66$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:66$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:67$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:67$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:68$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:68$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:69$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:69$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:70$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:70$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:71$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:71$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:72$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:72$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:73$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:73$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:74$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:74$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:75$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:75$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:76$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:76$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:77$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:77$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:78$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:78$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:79$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:79$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:80$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:80$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:81$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:81$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:82$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:82$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:83$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:83$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:84$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:84$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:85$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:85$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:86$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:86$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:87$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:87$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:88$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:88$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:89$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:89$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:90$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:90$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:91$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:91$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:92$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:92$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:93$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:93$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:94$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:94$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:95$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:95$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:96$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:96$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:97$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:97$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:98$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:98$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:99$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:99$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:100$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:100$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:101$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:101$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:102$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:102$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:103$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:103$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:104$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:104$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:105$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:105$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:106$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:106$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:107$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:107$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:108$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:108$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:109$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:109$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:110$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:110$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:111$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:111$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:112$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:112$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:113$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:113$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:114$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:114$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:115$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:115$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:116$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:116$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:117$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:117$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:118$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:118$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:119$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:119$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:120$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:120$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:121$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:121$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:122$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:122$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:123$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:123$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:124$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:124$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:125$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:125$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:126$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:126$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:127$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:127$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:128$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:128$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:129$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:129$[:,:]"
+            ]
+        }
+    ]
+}

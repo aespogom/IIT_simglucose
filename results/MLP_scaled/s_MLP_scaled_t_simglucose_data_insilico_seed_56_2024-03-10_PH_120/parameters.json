@@ -1,0 +1,18 @@
+{
+    "force": false,
+    "dump_path": "results\\MLP_scaled\\s_MLP_scaled_t_simglucose_data_insilico_seed_56_2024-03-10_PH_120",
+    "neuro_mapping": "train_config/MLP_scaled_120.nm",
+    "alpha_ce": 0.25,
+    "alpha_causal": 0.75,
+    "n_epoch": 300,
+    "gradient_accumulation_steps": 20,
+    "batch_train": 20,
+    "batch_val": 20,
+    "input_size": 20,
+    "output_size": 64,
+    "patience": 20,
+    "pred_horizon": 120,
+    "date_experiment": "2024-03-10",
+    "run_name": "s_MLP_scaled_t_simglucose_data_insilico_seed_56_2024-03-10_PH_120",
+    "seed": 56
+}
