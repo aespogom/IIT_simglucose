@@ -64,7 +64,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--dump_path",
         type=str,
-        default=os.path.join("results","MLP_tree"),
+        default=os.path.join("results","MLP_tree","hidden_size_256"),
         help="The output directory (log, checkpoints, parameters, etc.)"
     )
     parser.add_argument(
