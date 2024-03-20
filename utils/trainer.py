@@ -1,6 +1,7 @@
 import json
 import random
 from typing import Union
+import pandas as pd
 import torch
 from torch import nn
 from torch.optim import AdamW
@@ -123,6 +124,7 @@ class Trainer:
         self.early_stopper = EarlyStopper(patience=params.patience)
         # self.loss = RMSELoss()
         self.loss = nn.MSELoss(reduction='mean')
+        self.mae_loss = nn.L1Loss()
 
     def train(self):
         """
@@ -495,12 +497,25 @@ class Trainer:
         min_loss = min(current_loss_checkpoint)
         best_checkpoint = [checkpoint for checkpoint in current_checkpoints if str(min_loss) in checkpoint][0]
         self.student.load_state_dict(torch.load(os.path.join(self.dump_path,best_checkpoint)))
-        ## TODO EVALUATE METHODS
-        ii_loss = self.ii_loss(self.val_dataloader) if self.neuro_mapping else None
-        beh_loss = self.beh_loss(self.val_dataloader)
-        logger.info(f"------------ II LOSS VAL DATA {ii_loss}") if self.neuro_mapping else None
-
-        logger.info(f"------------- BEH LOSS VAL DATA {beh_loss}")
+        ii_mse, ii_mae = self.ii_loss(self.val_dataloader) if self.neuro_mapping else None
+        beh_mse, beh_mae = self.beh_loss(self.val_dataloader)
+        matrix = self.clarke_error_grid_analysis(self.val_dataloader, "val")
+        results=[{
+            "TYPE": "IIT VAL", "MSE":ii_mse.detach().numpy(), "MAE":ii_mae.detach().numpy(),
+            "EGA A": 0,
+            "EGA B": 0,
+            "EGA C": 0,
+            "EGA D": 0,
+            "EGA E": 0
+        },{
+            "TYPE": "REG VAL", "MSE": beh_mse.detach().numpy(), "MAE": beh_mae.detach().numpy(),
+            "EGA A": matrix[0],
+            "EGA B": matrix[1],
+            "EGA C": matrix[2],
+            "EGA D": matrix[3],
+            "EGA E": matrix[4]
+        }]
+        self.create_and_save_results("val", results)
 
     def test(self):
         self.student.eval()
@@ -511,16 +526,26 @@ class Trainer:
         min_loss = min(current_loss_checkpoint)
         best_checkpoint = [checkpoint for checkpoint in current_checkpoints if str(min_loss) in checkpoint][0]
         self.student.load_state_dict(torch.load(os.path.join(self.dump_path,best_checkpoint)))
-        ## TODO EVALUATE METHODS
-        ii_loss = self.ii_loss(self.test_dataloader) if self.neuro_mapping else None
-        beh_loss = self.beh_loss(self.test_dataloader)
-        logger.info(f"------------ II LOSS TEST DATA {ii_loss}") if self.neuro_mapping else None
-
-        logger.info(f"------------- BEH LOSS TEST DATA {beh_loss}")
-
+        ii_mse, ii_mae = self.ii_loss(self.test_dataloader) if self.neuro_mapping else None
+        beh_mse, beh_mae = self.beh_loss(self.test_dataloader)
         matrix = self.clarke_error_grid_analysis(self.test_dataloader, "test")
+        results=[{
+            "TYPE": "IIT TEST", "MSE":ii_mse.detach().numpy(), "MAE":ii_mae.detach().numpy(),
+            "EGA A": 0,
+            "EGA B": 0,
+            "EGA C": 0,
+            "EGA D": 0,
+            "EGA E": 0
+        },{
+            "TYPE": "REG TEST", "MSE": beh_mse.detach().numpy(), "MAE": beh_mae.detach().numpy(),
+            "EGA A": matrix[0],
+            "EGA B": matrix[1],
+            "EGA C": matrix[2],
+            "EGA D": matrix[3],
+            "EGA E": matrix[4]
+        }]
+        self.create_and_save_results("test", results)
 
-        logger.info(f"------------- EGA TEST DATA {matrix}")
 
     def ii_loss(self, dataset):
         """ Interchange intervention loss quantifies the extent to which the interpretable
@@ -601,7 +626,9 @@ class Trainer:
             # logger.info(torch.cat(predictions, dim=0))
             # logger.info("Labels")
             # logger.info(torch.stack(labels))
-            return self.loss(torch.cat(predictions, dim=0),torch.stack(labels))
+            mse_loss = self.loss(torch.cat(predictions, dim=0),torch.stack(labels))
+            mae_loss = self.mae_loss(torch.cat(predictions, dim=0),torch.stack(labels))
+            return mse_loss, mae_loss
     
     def beh_loss(self, dataset):
         """ Behavioral loss is the percentage of inputs that student agrees with teacher """
@@ -655,7 +682,9 @@ class Trainer:
             # logger.info(torch.cat(predictions, dim=0))
             # logger.info("Labels")
             # logger.info(torch.stack(labels))
-            return self.loss(torch.cat(predictions, dim=0),torch.stack(labels))
+            mse_loss = self.loss(torch.cat(predictions, dim=0),torch.stack(labels))
+            mae_loss = self.mae_loss(torch.cat(predictions, dim=0),torch.stack(labels))
+            return mse_loss, mae_loss
     
     def clarke_error_grid_analysis(self, dataset, mode):
         """
@@ -711,12 +740,21 @@ class Trainer:
         
         y_pred = torch.cat(predictions, dim=0)
         y_true = torch.stack(labels)
-        logger.info("Predictions")
-        logger.info(y_pred)
-        logger.info("Labels")
-        logger.info(labels)
+        # logger.info("Predictions")
+        # logger.info(y_pred)
+        # logger.info("Labels")
+        # logger.info(labels)
         plot, zone = clarke_error_grid(y_true, y_pred, "Clarke Error Grid Analysis")
         plot.savefig(os.path.join(self.dump_path,f"EGA_{mode}.png"))
         plot.close()
         return zone
         
+    def create_and_save_results(self, mode, data):
+        if mode == "val":
+            columns = ["TYPE", "MSE", "MAE", "EGA A", "EGA B", "EGA C", "EGA D", "EGA E"]
+            self.df = pd.DataFrame(columns=columns)
+        new_rows = pd.DataFrame(data)
+        self.df = pd.concat([self.df, new_rows], ignore_index=True)
+
+        if mode=="test":
+            self.df.to_excel(os.path.join(self.dump_path, "output.xlsx"), index=False)
