@@ -1,6 +1,6 @@
 {
     "force": false,
-    "dump_path": "results\\MLP_tree\\s_MLP_tree_data_insilico_seed_56_2024-03-10_PH_30",
+    "dump_path": "results\\MLP_tree\\hidden_size_256\\s_MLP_tree_data_insilico_seed_56_2024-03-10_PH_30",
     "neuro_mapping": null,
     "alpha_ce": 0.25,
     "alpha_causal": 0.75,
