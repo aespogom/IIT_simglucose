@@ -128,7 +128,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     # config the runname here and overwrite.
-    run_name = f"s_MLP_parallel_t_simglucose_data_insilico_seed_56_{args.date_experiment}_PH_{str(args.pred_horizon)}" if args.neuro_mapping else f"s_MLP_data_insilico_seed_56_{args.date_experiment}_PH_{str(args.pred_horizon)}"
+    run_name = f"s_MLP_parallel_t_simglucose_data_insilico_seed_56_{args.date_experiment}_PH_{str(args.pred_horizon)}" if args.neuro_mapping else f"s_MLP_parallel_data_insilico_seed_56_{args.date_experiment}_PH_{str(args.pred_horizon)}"
     args.run_name = run_name
     args.dump_path = os.path.join(args.dump_path, args.run_name)
     trainer = prepare_trainer(args)

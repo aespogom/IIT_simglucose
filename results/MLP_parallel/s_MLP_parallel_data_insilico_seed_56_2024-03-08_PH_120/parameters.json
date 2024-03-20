@@ -1,6 +1,6 @@
 {
     "force": false,
-    "dump_path": "results\\MLP_parallel\\s_MLP_data_insilico_seed_56_2024-03-08_PH_120",
+    "dump_path": "results\\MLP_parallel\\s_MLP_parallel_data_insilico_seed_56_2024-03-08_PH_120",
     "neuro_mapping": null,
     "alpha_ce": 0.25,
     "alpha_causal": 0.75,
@@ -11,6 +11,6 @@
     "patience": 20,
     "pred_horizon": 120,
     "date_experiment": "2024-03-08",
-    "run_name": "s_MLP_data_insilico_seed_56_2024-03-08_PH_120",
+    "run_name": "s_MLP_parallel_data_insilico_seed_56_2024-03-08_PH_120",
     "seed": 56
 }

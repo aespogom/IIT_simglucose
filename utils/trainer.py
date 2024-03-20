@@ -497,11 +497,13 @@ class Trainer:
         min_loss = min(current_loss_checkpoint)
         best_checkpoint = [checkpoint for checkpoint in current_checkpoints if str(min_loss) in checkpoint][0]
         self.student.load_state_dict(torch.load(os.path.join(self.dump_path,best_checkpoint)))
-        ii_mse, ii_mae = self.ii_loss(self.val_dataloader) if self.neuro_mapping else None
+        ii_mse, ii_mae = self.ii_loss(self.val_dataloader) if self.neuro_mapping else (None, None)
         beh_mse, beh_mae = self.beh_loss(self.val_dataloader)
         matrix = self.clarke_error_grid_analysis(self.val_dataloader, "val")
         results=[{
-            "TYPE": "IIT VAL", "MSE":ii_mse.detach().numpy(), "MAE":ii_mae.detach().numpy(),
+            "TYPE": "IIT VAL",
+            "MSE":ii_mse.detach().numpy() if self.neuro_mapping else 0,
+            "MAE":ii_mae.detach().numpy() if self.neuro_mapping else 0,
             "EGA A": 0,
             "EGA B": 0,
             "EGA C": 0,
@@ -526,11 +528,13 @@ class Trainer:
         min_loss = min(current_loss_checkpoint)
         best_checkpoint = [checkpoint for checkpoint in current_checkpoints if str(min_loss) in checkpoint][0]
         self.student.load_state_dict(torch.load(os.path.join(self.dump_path,best_checkpoint)))
-        ii_mse, ii_mae = self.ii_loss(self.test_dataloader) if self.neuro_mapping else None
+        ii_mse, ii_mae = self.ii_loss(self.test_dataloader) if self.neuro_mapping else (None, None)
         beh_mse, beh_mae = self.beh_loss(self.test_dataloader)
         matrix = self.clarke_error_grid_analysis(self.test_dataloader, "test")
         results=[{
-            "TYPE": "IIT TEST", "MSE":ii_mse.detach().numpy(), "MAE":ii_mae.detach().numpy(),
+            "TYPE": "IIT TEST",
+            "MSE":ii_mse.detach().numpy() if self.neuro_mapping else 0,
+            "MAE":ii_mae.detach().numpy() if self.neuro_mapping else 0,
             "EGA A": 0,
             "EGA B": 0,
             "EGA C": 0,
