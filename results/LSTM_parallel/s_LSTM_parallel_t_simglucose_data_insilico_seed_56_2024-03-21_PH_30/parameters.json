@@ -1,0 +1,16 @@
+{
+    "force": false,
+    "dump_path": "results\\LSTM_parallel\\s_LSTM_parallel_t_simglucose_data_insilico_seed_56_2024-03-21_PH_30",
+    "neuro_mapping": "train_config/LSTM_parallel.nm",
+    "alpha_ce": 0.25,
+    "alpha_causal": 0.75,
+    "n_epoch": 300,
+    "gradient_accumulation_steps": 20,
+    "batch_train": 20,
+    "batch_val": 20,
+    "patience": 20,
+    "pred_horizon": 30,
+    "date_experiment": "2024-03-21",
+    "run_name": "s_LSTM_parallel_t_simglucose_data_insilico_seed_56_2024-03-21_PH_30",
+    "seed": 56
+}
