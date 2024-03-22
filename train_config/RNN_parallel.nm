@@ -1,0 +1,109 @@
+{
+    "interchange_variable_mappings": [
+        {
+            "teacher_variable_names": [
+                "$L:0$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:0$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:1$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:1$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:2$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:2$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:3$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:3$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:4$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:4$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:5$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:5$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:6$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:6$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:7$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:7$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:8$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:8$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:9$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:9$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:10$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:10$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:11$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:11$[:,:]"
+            ]
+        },
+        {
+            "teacher_variable_names": [
+                "$L:12$[:,:]"
+            ],
+            "student_variable_names": [
+                "$L:12$[:,:]"
+            ]
+        }
+
+    ]
+}

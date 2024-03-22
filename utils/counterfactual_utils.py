@@ -1,6 +1,7 @@
 import logging
 import numpy as np
 import torch
+from torch.nn import RNN
 
 
 logging.basicConfig(
@@ -114,6 +115,9 @@ def interchange_hook(interchanged_variable, interchanged_activations):
         
         partial_LOC_start = interchanged_variable[1].start.split(':')
         partial_LOC_stop = interchanged_variable[1].stop.split(':')
+        if isinstance(model, RNN):
+            output = (output[0], interchanged_activations)
+            return output
         try:
             LOC_start_start = int(partial_LOC_start[0])
             LOC_start_stop = int(partial_LOC_start[1])
