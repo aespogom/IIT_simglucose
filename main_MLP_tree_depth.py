@@ -140,6 +140,6 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error(f"Something went wrong :( --> {e}")
     finally:
-        ## TODO EVALUATE METHODS
+        
         trainer.evaluate()
         trainer.test()
