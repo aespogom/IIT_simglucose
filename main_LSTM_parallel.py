@@ -132,8 +132,8 @@ if __name__ == "__main__":
     args.run_name = run_name
     args.dump_path = os.path.join(args.dump_path, args.run_name)
     trainer = prepare_trainer(args)
-    logger.info("Start training.")
     try:
+        logger.info("Start training.")
         if args.date_experiment == datetime.today().strftime('%Y-%m-%d'):
             trainer.train()
         else:
@@ -141,6 +141,6 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error(f"Something went wrong :( --> {e}")
     finally:
-        
+        logger.info("Start evaluation.")
         trainer.evaluate()
         trainer.test()
