@@ -71,7 +71,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--neuro_mapping",
         type=str,
-        default="train_config/RNN_parallel.nm",
+        # default="train_config/RNN_parallel.nm",
         # default=None,
         help="Predefined neuron mapping for the interchange experiment.",
     )
@@ -116,7 +116,7 @@ if __name__ == "__main__":
         "--pred_horizon",
         type=int,
         choices=[30, 45, 60, 120],
-        default=120,
+        # default=120,
         help="Prediction horizon."
     )
     parser.add_argument(
