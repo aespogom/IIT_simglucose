@@ -65,13 +65,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "--dump_path",
         type=str,
-        default=os.path.join("results","MLP_joint","remove_cyclic"),
+        default=os.path.join("results","MLP_joint","double_cyclic"),
         help="The output directory (log, checkpoints, parameters, etc.)"
     )
     parser.add_argument(
         "--neuro_mapping",
         type=str,
-        # default="train_config/MLP_tree_joint_remove_cyclic.nm",
+        # default="train_config/MLP_tree_joint_double_cyclic.nm",
         default=None,
         help="Predefined neuron mapping for the interchange experiment.",
     )
