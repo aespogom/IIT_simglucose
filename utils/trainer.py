@@ -362,12 +362,6 @@ class Trainer:
         self.total_loss_epoch += loss.item()
         self.last_loss = loss.item()# optional recording of the value.
         self.last_loss_causal_ce = causal_loss_ce.item()
-
-        if self.n_iter % self.params.gradient_accumulation_steps == 0:
-            print(f"Student outputs is: {str(s_outputs)}")
-            print(f"Teacher outputs is: {str(t_outputs)}")
-            print(f"Student dual outputs is: {str(dual_s_outputs)}")
-            print(f"Teacher dual outputs is: {str(dual_t_outputs)}")
         
         self.optimize(loss)
 
@@ -426,10 +420,6 @@ class Trainer:
         self.track_loss.append(loss.item())
         self.total_loss_epoch += loss.item()
         self.last_loss = loss.item()# optional recording of the value.
-
-        if self.n_iter % self.params.gradient_accumulation_steps == 0:
-            print(f"Student outputs is: {str(s_outputs)}")
-            print(f"Student dual outputs is: {str(dual_s_outputs)}")
         
         self.optimize(loss)
 
