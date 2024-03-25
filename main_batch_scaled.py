@@ -2,14 +2,14 @@ import subprocess
 
 # List of tasks. Each task is a list where the first element is the script, and the following elements are the arguments for that script.
 tasks = [
-    ['main_MLP_scaled.py', '--pred_horizon 30', '--neuro_mapping train_config/MLP_scaled_30.nm'],
-    ['main_MLP_scaled.py', '--pred_horizon 45', '--neuro_mapping train_config/MLP_scaled_45.nm'],
-    ['main_MLP_scaled.py', '--pred_horizon 60', '--neuro_mapping train_config/MLP_scaled_60.nm'],
-    ['main_MLP_scaled.py', '--pred_horizon 120', '--neuro_mapping train_config/MLP_scaled_120.nm'],
-    ['main_MLP_scaled.py', '--pred_horizon 30'],
-    ['main_MLP_scaled.py', '--pred_horizon 45'],
-    ['main_MLP_scaled.py', '--pred_horizon 60'],
-    ['main_MLP_scaled.py', '--pred_horizon 120'],
+    ['main_MLP_scaled.py', '--pred_horizon', '30', '--neuro_mapping', 'train_config/MLP_scaled_30.nm'],
+    ['main_MLP_scaled.py', '--pred_horizon', '45', '--neuro_mapping', 'train_config/MLP_scaled_45.nm'],
+    ['main_MLP_scaled.py', '--pred_horizon', '60', '--neuro_mapping', 'train_config/MLP_scaled_60.nm'],
+    ['main_MLP_scaled.py', '--pred_horizon', '120', '--neuro_mapping', 'train_config/MLP_scaled_120.nm'],
+    ['main_MLP_scaled.py', '--pred_horizon', '30'],
+    ['main_MLP_scaled.py', '--pred_horizon', '45'],
+    ['main_MLP_scaled.py', '--pred_horizon', '60'],
+    ['main_MLP_scaled.py', '--pred_horizon', '120'],
    # Add more tasks as needed
 ]
 
