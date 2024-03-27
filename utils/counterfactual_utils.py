@@ -1,7 +1,7 @@
 import logging
 import numpy as np
 import torch
-from torch.nn import RNN
+from torch.nn import RNN, LSTM
 
 
 logging.basicConfig(
@@ -117,6 +117,10 @@ def interchange_hook(interchanged_variable, interchanged_activations):
         partial_LOC_stop = interchanged_variable[1].stop.split(':')
         if isinstance(model, RNN):
             output = (output[0], interchanged_activations)
+
+        #TODO REUSABLE FOR ANY LSTM ARCHITECTURE
+        if isinstance(model, LSTM):
+            output = (output[0], (interchanged_activations, output[1][1]))
             return output
         try:
             LOC_start_start = int(partial_LOC_start[0])

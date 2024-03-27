@@ -7,7 +7,7 @@ class MLP(nn.Module):
         super(MLP, self).__init__()
         
         input_size = 20
-        num_neurons = 256
+        num_neurons = 128
         output_size = 1
         # X_1
         self.X_1 = nn.Sequential(

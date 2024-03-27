@@ -751,4 +751,5 @@ class Trainer:
         self.df = pd.concat([self.df, new_rows], ignore_index=True)
 
         if mode=="test":
+            print(self.df)
             self.df.to_excel(os.path.join(self.dump_path, "output.xlsx"), index=False)
