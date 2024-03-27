@@ -115,8 +115,10 @@ def interchange_hook(interchanged_variable, interchanged_activations):
         
         partial_LOC_start = interchanged_variable[1].start.split(':')
         partial_LOC_stop = interchanged_variable[1].stop.split(':')
+        #TODO REUSABLE FOR ANY RNN ARCHITECTURE
         if isinstance(model, RNN):
             output = (output[0], interchanged_activations)
+            return output
 
         #TODO REUSABLE FOR ANY LSTM ARCHITECTURE
         if isinstance(model, LSTM):

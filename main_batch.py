@@ -51,7 +51,7 @@ tasks = [
     ['main_MLP_scaled.py', '--pred_horizon', '45'],
     ['main_MLP_scaled.py', '--pred_horizon', '60'],
     ['main_MLP_scaled.py', '--pred_horizon', '120'],
-    # LSTM
+    # LSTM parallel
     ['main_LSTM_parallel.py', '--pred_horizon', '30', '--neuro_mapping', 'train_config/LSTM_parallel.nm'],
     ['main_LSTM_parallel.py', '--pred_horizon', '45', '--neuro_mapping', 'train_config/LSTM_parallel.nm'],
     ['main_LSTM_parallel.py', '--pred_horizon', '60', '--neuro_mapping', 'train_config/LSTM_parallel.nm'],
@@ -60,7 +60,16 @@ tasks = [
     ['main_LSTM_parallel.py', '--pred_horizon', '45'],
     ['main_LSTM_parallel.py', '--pred_horizon', '60'],
     ['main_LSTM_parallel.py', '--pred_horizon', '120'],
-    # RNN
+    # LSTM tree
+    ['main_LSTM_tree.py', '--pred_horizon', '30', '--neuro_mapping', 'train_config/LSTM_tree.nm'],
+    ['main_LSTM_tree.py', '--pred_horizon', '45', '--neuro_mapping', 'train_config/LSTM_tree.nm'],
+    ['main_LSTM_tree.py', '--pred_horizon', '60', '--neuro_mapping', 'train_config/LSTM_tree.nm'],
+    ['main_LSTM_tree.py', '--pred_horizon', '120', '--neuro_mapping', 'train_config/LSTM_tree.nm'],
+    ['main_LSTM_tree.py', '--pred_horizon', '30'],
+    ['main_LSTM_tree.py', '--pred_horizon', '45'],
+    ['main_LSTM_tree.py', '--pred_horizon', '60'],
+    ['main_LSTM_tree.py', '--pred_horizon', '120'],
+    # RNN parallel
     ['main_RNN_parallel.py', '--pred_horizon', '30', '--neuro_mapping', 'train_config/RNN_parallel.nm'],
     ['main_RNN_parallel.py', '--pred_horizon', '45', '--neuro_mapping', 'train_config/RNN_parallel.nm'],
     ['main_RNN_parallel.py', '--pred_horizon', '60', '--neuro_mapping', 'train_config/RNN_parallel.nm'],
@@ -69,6 +78,15 @@ tasks = [
     ['main_RNN_parallel.py', '--pred_horizon', '45'],
     ['main_RNN_parallel.py', '--pred_horizon', '60'],
     ['main_RNN_parallel.py', '--pred_horizon', '120'],
+    # RNN tree
+    ['main_RNN_tree.py', '--pred_horizon', '30', '--neuro_mapping', 'train_config/RNN_tree.nm'],
+    ['main_RNN_tree.py', '--pred_horizon', '45', '--neuro_mapping', 'train_config/RNN_tree.nm'],
+    ['main_RNN_tree.py', '--pred_horizon', '60', '--neuro_mapping', 'train_config/RNN_tree.nm'],
+    ['main_RNN_tree.py', '--pred_horizon', '120', '--neuro_mapping', 'train_config/RNN_tree.nm'],
+    ['main_RNN_tree.py', '--pred_horizon', '30'],
+    ['main_RNN_tree.py', '--pred_horizon', '45'],
+    ['main_RNN_tree.py', '--pred_horizon', '60'],
+    ['main_RNN_tree.py', '--pred_horizon', '120'],
 ]
 
 for task in tasks:
