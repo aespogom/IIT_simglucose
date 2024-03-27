@@ -10,7 +10,7 @@ class EarlyStopper:
         if validation_loss < self.min_validation_loss:
             self.min_validation_loss = validation_loss
             self.counter = 0
-        elif validation_loss > self.min_validation_loss:
+        elif validation_loss >= self.min_validation_loss:
             self.counter += 1
             logger.info(f"Early stop counter has increased to {str(self.counter)}")
             if self.counter >= self.patience:

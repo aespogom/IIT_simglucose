@@ -9,6 +9,7 @@ from models.teacher import simglucose as teacher
 from models.student import MLP_tree as student
 from utils.counterfactual_utils import set_seed, logger
 from utils.trainer import Trainer
+from pickle import dump
 
 def prepare_trainer(args):
 
@@ -64,7 +65,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--dump_path",
         type=str,
-        default=os.path.join("results","MLP_tree","hidden_size_256"),
+        default=os.path.join("results","MLP_tree","hidden_size_128"),
         help="The output directory (log, checkpoints, parameters, etc.)"
     )
     parser.add_argument(
@@ -131,15 +132,23 @@ if __name__ == "__main__":
     args.run_name = run_name
     args.dump_path = os.path.join(args.dump_path, args.run_name)
     trainer = prepare_trainer(args)
-    logger.info("Start training.")
     try:
         if args.date_experiment == datetime.today().strftime('%Y-%m-%d'):
+            logger.info("Start training.")
             trainer.train()
         else:
             pass
     except Exception as e:
+        # Save the training loss values
+        with open(os.path.join(trainer.dump_path,'train_loss.pkl'), 'wb') as file:
+            dump(trainer.track_loss, file)
+        
+        # Save the II loss values
+        if trainer.neuro_mapping:
+            with open(os.path.join(trainer.dump_path,'ii_loss.pkl'), 'wb') as file:
+                dump(trainer.track_II_loss, file)
         logger.error(f"Something went wrong :( --> {e}")
     finally:
-        
+        logger.info("Start evaluation.")
         trainer.evaluate()
         trainer.test()

@@ -2,6 +2,7 @@ import argparse
 from datetime import datetime
 import json
 import os
+from pickle import dump
 import shutil
 import torch
 from dataset.glucosedataset import setup_loaders
@@ -127,19 +128,27 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     # config the runname here and overwrite.
-    run_name = f"s_MLP_parallel_t_simglucose_data_insilico_seed_56_{args.date_experiment}_PH_{str(args.pred_horizon)}" if args.neuro_mapping else f"s_MLP_data_insilico_seed_56_{args.date_experiment}_PH_{str(args.pred_horizon)}"
+    run_name = f"s_MLP_parallel_t_simglucose_data_insilico_seed_56_{args.date_experiment}_PH_{str(args.pred_horizon)}" if args.neuro_mapping else f"s_MLP_parallel_data_insilico_seed_56_{args.date_experiment}_PH_{str(args.pred_horizon)}"
     args.run_name = run_name
     args.dump_path = os.path.join(args.dump_path, args.run_name)
     trainer = prepare_trainer(args)
-    logger.info("Start training.")
     try:
         if args.date_experiment == datetime.today().strftime('%Y-%m-%d'):
+            logger.info("Start training.")
             trainer.train()
         else:
             pass
     except Exception as e:
+        # Save the training loss values
+        with open(os.path.join(trainer.dump_path,'train_loss.pkl'), 'wb') as file:
+            dump(trainer.track_loss, file)
+        
+        # Save the II loss values
+        if trainer.neuro_mapping:
+            with open(os.path.join(trainer.dump_path,'ii_loss.pkl'), 'wb') as file:
+                dump(trainer.track_II_loss, file)
         logger.error(f"Something went wrong :( --> {e}")
     finally:
-        
+        logger.info("Start evaluation.")
         trainer.evaluate()
         trainer.test()
