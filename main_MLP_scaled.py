@@ -73,7 +73,7 @@ if __name__ == "__main__":
         "--neuro_mapping",
         type=str,
         # default=f"train_config/MLP_scaled_45.nm",
-        default=None,
+        # default=None,
         help="Predefined neuron mapping for the interchange experiment.",
     )
     parser.add_argument(

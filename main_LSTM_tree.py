@@ -71,7 +71,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--neuro_mapping",
         type=str,
-        default="train_config/LSTM_tree.nm",
+        # default="train_config/LSTM_tree.nm",
         # default=None,
         help="Predefined neuron mapping for the interchange experiment.",
     )

@@ -72,7 +72,7 @@ if __name__ == "__main__":
         "--neuro_mapping",
         type=str,
         # default="train_config/MLP_tree_joint_double_cyclic.nm",
-        default=None,
+        # default=None,
         help="Predefined neuron mapping for the interchange experiment.",
     )
     parser.add_argument(
