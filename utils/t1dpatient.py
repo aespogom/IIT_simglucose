@@ -233,10 +233,10 @@ class T1DPatient(Patient):
             params.k1 * x[3] + params.k2 * x[4]
         dxdt[3] = (x[3] >= 0) * dxdt[3]
 
-        Vmt = params.Vm0 + params.Vmx * x[6]
+        Vmt = params.Vm0
         Kmt = params.Km0
         Uidt = Vmt * x[4] / (Kmt + x[4])
-        dxdt[4] = -Uidt + params.k1 * x[3] - params.k2 * x[4]
+        dxdt[4] = -Uidt - params.k2 * x[4]
         dxdt[4] = (x[4] >= 0) * dxdt[4]
 
         # insulin kinetics
@@ -254,7 +254,7 @@ class T1DPatient(Patient):
         dxdt[8] = -params.ki * (x[8] - x[7])
 
         # insulin in the liver (pmol/kg)
-        dxdt[9] = -(params.m1 + params.m30) * x[9] + params.m2 * x[5]
+        dxdt[9] = -(params.m1 + params.m30) * x[9]
         dxdt[9] = (x[9] >= 0) * dxdt[9]
 
         # subcutaneous insulin kinetics
