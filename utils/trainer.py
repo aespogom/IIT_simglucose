@@ -136,7 +136,8 @@ class Trainer:
         self.student.train()
         self.optimizer.zero_grad()
 
-        for _ in range(self.params.n_epoch):
+        for n in range(self.params.n_epoch):
+            self.epoch = n
             logger.info(f"--- Starting epoch {self.epoch}/{self.params.n_epoch-1}")
             iter_bar = tqdm(self.dataloader, desc="-Iter")
             for batch in iter_bar:
@@ -183,10 +184,12 @@ class Trainer:
                 )
             iter_bar.close()
             logger.info(f"--- Ending epoch {self.epoch}/{self.params.n_epoch-1}")
-            if self.early_stopper.early_stop(self.total_loss_epoch/self.n_iter):
-                self.end_epoch()          
+            should_stop = self.early_stopper.early_stop(self.total_loss_epoch/self.n_iter, n)
+            print(f"Epoch {n} has {self.early_stopper.counter}/{self.params.patience} patience")
+            if should_stop:
+                self.end_epoch(should_stop=should_stop)
                 break
-            self.end_epoch()
+            self.end_epoch(should_stop=should_stop)
 
         # Save the training loss values
         with open(os.path.join(self.dump_path,'train_loss.pkl'), 'wb') as file:
@@ -451,32 +454,39 @@ class Trainer:
             self.optimizer.zero_grad()
             self.scheduler.step()
     
-    def end_epoch(self):
+    def end_epoch(self, should_stop):
         """
         Finally arrived at the end of epoch (full pass on dataset).
         Do some tensorboard logging and checkpoint saving.
         """
         #f"model_epoch_{self.epoch}_loss_{self.total_loss_epoch/self.n_iter:.2f}_ii_acc_{self.total_ii_acc_epoch/self.n_iter:.2f}_beh_acc_{self.total_beh_acc_epoch/self.n_iter:.2f}
-        self.save_checkpoint(checkpoint_name=f"model_epoch_{self.epoch}_loss_{self.total_loss_epoch/self.n_iter:.2f}.pth")
-
-        self.epoch += 1
+        self.save_checkpoint(
+            checkpoint_name=f"model_epoch_{self.epoch}_loss_{self.total_loss_epoch/self.n_iter:.2f}.pth",
+            should_stop=should_stop
+        )
         self.n_iter = 0
         self.total_loss_epoch = 0
         self.total_ii_acc_epoch = 0
         self.total_beh_acc_epoch = 0
 
-    def save_checkpoint(self, checkpoint_name: str = "checkpoint.pth"):
+    def save_checkpoint(self, checkpoint_name: str = "checkpoint.pth", should_stop: bool = False):
         """
         Save the current state. Only by the master process.
         """
         current_checkpoints = os.listdir(self.dump_path)
-        current_loss_checkpoint = [float(loss.split('_')[-1].split('.pth')[0]) for loss in current_checkpoints if "model_epoch" in loss]
-        if all([loss_checkpoint >= self.total_loss_epoch/self.n_iter for loss_checkpoint in current_loss_checkpoint]):
+        current_loss_checkpoint = [float(loss.split('_')[-1].split('.pth')[0]) for loss in current_checkpoints if f"model_epoch" in loss]
+        best_checkpoint_filename = self.early_stopper.checkpoint_file
+        if should_stop:
+            if any([best_checkpoint_filename in file for file in current_checkpoints]):
+                [os.remove(os.path.join(self.dump_path, file)) for file in current_checkpoints if f"model_epoch" in file and best_checkpoint_filename not in file]
+                print(f"saved weight from {best_checkpoint_filename}")
+        elif all([loss_checkpoint >= self.total_loss_epoch/self.n_iter for loss_checkpoint in current_loss_checkpoint]):
             if len(current_checkpoints)>0:
-                [os.remove(os.path.join(self.dump_path, file)) for file in current_checkpoints if "model_epoch" in file]
-        mdl_to_save = self.student
-        state_dict = mdl_to_save.state_dict()
-        torch.save(state_dict, os.path.join(self.dump_path, checkpoint_name))
+                [os.remove(os.path.join(self.dump_path, file)) for file in current_checkpoints if f"model_epoch" in file and best_checkpoint_filename not in file]
+        if not should_stop:
+            mdl_to_save = self.student
+            state_dict = mdl_to_save.state_dict()
+            torch.save(state_dict, os.path.join(self.dump_path, checkpoint_name))
     
     def evaluate(self):
         self.student.eval()
@@ -752,4 +762,4 @@ class Trainer:
 
         if mode=="test":
             print(self.df)
-            self.df.to_excel(os.path.join(self.dump_path, "output.xlsx"), index=False)
+            # self.df.to_excel(os.path.join(self.dump_path, "output.xlsx"), index=False)
