@@ -133,11 +133,8 @@ if __name__ == "__main__":
     args.dump_path = os.path.join(args.dump_path, args.run_name)
     trainer = prepare_trainer(args)
     try:
-        if args.date_experiment == datetime.today().strftime('%Y-%m-%d'):
-            logger.info("Start training.")
-            trainer.train()
-        else:
-            pass
+        logger.info("Start training.")
+        trainer.train()
     except Exception as e:
         # Save the training loss values
         with open(os.path.join(trainer.dump_path,'train_loss.pkl'), 'wb') as file:
