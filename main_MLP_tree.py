@@ -14,7 +14,7 @@ from pickle import dump
 def prepare_trainer(args):
 
     # ARGS #
-    args.seed=56
+    # args.seed=56
     set_seed(args)
     
     # if os.path.exists(args.dump_path):
@@ -37,7 +37,7 @@ def prepare_trainer(args):
     logger.info("Teacher loaded.")
 
     # DATA LOADER
-    train_dataset, val_dataset, test_dataset = setup_loaders()
+    train_dataset, val_dataset, test_dataset = setup_loaders(args)
     logger.info("Data loader created.")
 
     # TRAINER #
@@ -124,11 +124,16 @@ if __name__ == "__main__":
         default=datetime.today().strftime('%Y-%m-%d'),
         help="Date of the experiemnt in format YYYY-MM-DD."
     )
-    
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=56,
+        help="Experiment seed."
+    )
     args = parser.parse_args()
     
     # config the runname here and overwrite.
-    run_name = f"s_MLP_tree_t_simglucose_data_insilico_seed_56_{args.date_experiment}_PH_{str(args.pred_horizon)}" if args.neuro_mapping else f"s_MLP_tree_data_insilico_seed_56_{args.date_experiment}_PH_{str(args.pred_horizon)}"
+    run_name = f"s_MLP_tree_t_simglucose_data_insilico_seed_{str(args.seed)}_{args.date_experiment}_PH_{str(args.pred_horizon)}" if args.neuro_mapping else f"s_MLP_tree_data_insilico_seed_{str(args.seed)}_{args.date_experiment}_PH_{str(args.pred_horizon)}"
     args.run_name = run_name
     args.dump_path = os.path.join(args.dump_path, args.run_name)
     trainer = prepare_trainer(args)

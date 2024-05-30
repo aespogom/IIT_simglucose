@@ -8,7 +8,7 @@ from sklearn.preprocessing import StandardScaler
 import torch
 from torch.utils.data import DataLoader, Dataset
 
-random.seed(56)
+# random.seed(56)
 
 PATIENT_PARA_FILE = os.path.join('data', 'sampled_insilico_vparams.csv')
 vparams = pd.read_csv(PATIENT_PARA_FILE)
@@ -161,10 +161,11 @@ def create_dataset(vparams, vparams_test):
             torch.from_numpy(X_val_normalized_reshaped).to(torch.float32), val_ids, \
             torch.from_numpy(X_test_normalized_reshaped).to(torch.float32), PATIENT_IDS_TEST
 
-def setup_loaders():
+def setup_loaders(args):
     AVAIL_GPUS = min(1, torch.cuda.device_count())
     AVAIL_CPUS = multiprocessing.cpu_count()
-    torch.manual_seed(56)
+    torch.manual_seed(args.seed)
+    random.seed(args.seed)
 
     num_workers = (4 * AVAIL_GPUS) if (AVAIL_GPUS > 0) else AVAIL_CPUS
     batch_size = 2 # DUAL INPUT!

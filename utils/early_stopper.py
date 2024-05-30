@@ -7,11 +7,11 @@ class EarlyStopper:
         self.checkpoint_file = ""
 
     def early_stop(self, validation_loss, epoch):
-        if validation_loss < self.min_validation_loss:
+        if abs(validation_loss - self.min_validation_loss) > 0.0001 and validation_loss < self.min_validation_loss:
             self.min_validation_loss = validation_loss
             self.counter = 0
             self.checkpoint_file = f"model_epoch_{epoch}"
-        elif validation_loss >= self.min_validation_loss:
+        else:
             self.counter += 1
             logger.info(f"Early stop counter has increased to {str(self.counter)}")
             if self.counter >= self.patience:
