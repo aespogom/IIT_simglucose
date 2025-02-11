@@ -210,8 +210,8 @@ class MLP(nn.Module):
             student_output
         )
 
-        
-        student_output["outputs"] = self.output(out13)
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        student_output["outputs"] = self.output(out13).to(device)
 
         # IIT Objective
         # For each intermediate variable Yw ∈ {YTL, YTR, YBL, YBR}, we introduce an IIT
@@ -225,12 +225,12 @@ class MLP(nn.Module):
             if t_outputs is not None:
                 s_outputs = student_output["outputs"]
                 loss = self.loss(s_outputs, t_outputs.unsqueeze(0))
-                student_output["loss"] = loss
+                student_output["loss"] = loss.to(device)
         else:
             # causal loss.
             causal_s_outputs = student_output["outputs"]
             loss = self.loss(causal_s_outputs, causal_t_outputs.unsqueeze(0))
-            student_output["loss"] = loss
+            student_output["loss"] = loss.to(device)
 
             # measure the efficacy of the interchange.
             teacher_interchange_efficacy = (
@@ -246,8 +246,8 @@ class MLP(nn.Module):
                     s_outputs,
                 )
             )
-            student_output["teacher_interchange_efficacy"] = teacher_interchange_efficacy
-            student_output["student_interchange_efficacy"] = student_interchange_efficacy
+            student_output["teacher_interchange_efficacy"] = teacher_interchange_efficacy.to(device)
+            student_output["student_interchange_efficacy"] = student_interchange_efficacy.to(device)
         
         for h in hooks:
             h.remove()

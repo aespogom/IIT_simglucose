@@ -15,12 +15,11 @@ from models.student import MLP_scaled as student_scaled
 from utils.counterfactual_utils import set_seed, logger
 from utils.trainer import Trainer
 
-def prepare_trainer(args):
-
+def prepare_trainer(args, device):
+    print(f"Prepare trainer device: {device}")
     # ARGS #
     set_seed(args)
 
-    torch.set_num_threads(os.cpu_count())
 
     if not os.path.exists(args.dump_path):
         os.makedirs(args.dump_path)
@@ -32,24 +31,24 @@ def prepare_trainer(args):
         json.dump(vars(args), f, indent=4)
 
     if args.student_model == "parallel":
-        student_model = student.MLP()
+        student_model = student.MLP().to(device)
     elif args.student_model == "tree":
-        student_model = student_tree.MLP()
+        student_model = student_tree.MLP().to(device)
     elif args.student_model == "tree_depth":
-        student_model = student_tree_depth.MLP()
+        student_model = student_tree_depth.MLP().to(device)
     elif  args.student_model == "tree_joint":
-        student_model = student_tree_joint.MLP()
+        student_model = student_tree_joint.MLP().to(device)
     elif args.student_model == "scaled":
         # EX: Pred horizon 30 with a time step of 3 minutes represent 10 integrations in the simulator --> 1 initial block + 9 scaled
-        student_model = student_scaled.MLP_scaled(args.input_size, args.output_size, args.pred_horizon/3)
-    # student = student_model.to(f"cuda:0", non_blocking=True)
+        student_model = student_scaled.MLP_scaled(args.input_size, args.output_size, args.pred_horizon/3).to(device)
+    # student = student_model.to(f"cuda")
     logger.info("Student loaded.")
 
     if args.modified:
-        teacher_model = teacher_no_cycles.Simglucose(args.pred_horizon)
+        teacher_model = teacher_no_cycles.Simglucose(args.pred_horizon).to(device)
     else:
-        teacher_model = teacher.Simglucose(args.pred_horizon)
-    # teacher = teacher_model.to(f"cuda:0", non_blocking=True)
+        teacher_model = teacher.Simglucose(args.pred_horizon).to(device)
+    # teacher = teacher_model.to(f"cuda")
     logger.info("Teacher loaded.")
 
     # DATA LOADER
@@ -66,7 +65,8 @@ def prepare_trainer(args):
         test_dataset=test_dataset,
         neuro_mapping=args.neuro_mapping,
         student=student_model,
-        teacher=teacher_model
+        teacher=teacher_model,
+        device=device
     )
     logger.info("trainer initialization done.")
     return trainer
@@ -176,7 +176,12 @@ if __name__ == "__main__":
     args.run_name = run_name
     args.dump_path = os.path.join("results","MLP_"+args.student_model)
     args.dump_path = os.path.join(args.dump_path, args.run_name)
-    trainer = prepare_trainer(args)
+    
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    logger.info(f"Using device: {device}")
+    logger.info(f"Using torch version: {torch.version.cuda}") 
+
+    trainer = prepare_trainer(args, device)
     try:
         if args.date_experiment == datetime.today().strftime('%Y-%m-%d'):
             logger.info("Start training.")

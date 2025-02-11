@@ -1,6 +1,6 @@
 import json
 import random
-from typing import Union
+from typing import Union, Any
 import pandas as pd
 import torch
 from torch import nn
@@ -28,7 +28,8 @@ class Trainer:
         test_dataset: Union[GlucoseDataset, None],
         neuro_mapping: Union[str,None],
         student: nn.Module,
-        teacher: nn.Module
+        teacher: nn.Module,
+        device: Any
     ):
         logger.info("Initializing Trainer")
         self.params = params
@@ -36,6 +37,7 @@ class Trainer:
         self.neuro_mapping = neuro_mapping
         self.student = student
         self.teacher = teacher
+        self.device = device
 
         self.epoch = 0
         self.n_iter = 0
@@ -131,6 +133,7 @@ class Trainer:
         The real training loop.
         """
         logger.info("Starting training")
+        logger.info(f"Using device: {self.device}")
         self.last_log = time.time()
         self.teacher.eval()
         self.optimizer.zero_grad()
@@ -143,11 +146,11 @@ class Trainer:
             for batch in iter_bar:
                 pre_meal, post_meal, pat_names = batch
 
-                source = pre_meal[0, :]
-                source_labels = post_meal[0]
+                source = pre_meal[0, :].to(self.device)
+                source_labels = post_meal[0].to(self.device)
                 
-                base = pre_meal[-1, :]
-                base_labels = post_meal[-1]
+                base = pre_meal[-1, :].to(self.device)
+                base_labels = post_meal[-1].to(self.device)
                 
                 look_up_source, look_up_base = pat_names
 
@@ -282,9 +285,8 @@ class Trainer:
                 interchanged_variables=counterfactual_activations_teacher, # source activations
                 variable_names=teacher_interchanged_variables_mapping
             )
-
-        t_outputs = teacher_outputs["outputs"]
-        dual_t_outputs = dual_teacher_outputs["outputs"]
+        t_outputs = teacher_outputs["outputs"].to(self.device)
+        dual_t_outputs = dual_teacher_outputs["outputs"].to(self.device)
         # student forward pass normal.
         student_outputs = self.student(
             input_ids=source_ids, # source input
@@ -300,15 +302,14 @@ class Trainer:
             #dual_t_hidden
         )
 
-        s_outputs = student_outputs["outputs"]
-        dual_s_outputs = dual_student_outputs["outputs"]
-        causal_t_outputs = counterfactual_outputs_teacher["outputs"]
+        s_outputs = student_outputs["outputs"].to(self.device)
+        dual_s_outputs = dual_student_outputs["outputs"].to(self.device)
+        causal_t_outputs = counterfactual_outputs_teacher["outputs"].to(self.device)
         ## HERE ANA IS THIS A BUG IN ORIGINAL CODE??? they are using counterfactual_outputs_teacher instead of dual_counterfactual_outputs_teacher
-        dual_causal_t_outputs = dual_counterfactual_outputs_teacher["outputs"]
-        
+        dual_causal_t_outputs = dual_counterfactual_outputs_teacher["outputs"].to(self.device)
         # Loss_ce
-        loss_ce = student_outputs["loss"]
-        loss_ce += dual_student_outputs["loss"]
+        loss_ce = student_outputs["loss"].to(self.device)
+        loss_ce += dual_student_outputs["loss"].to(self.device)
         loss = self.alpha_ce * loss_ce
 
         self.track_loss.append(loss.item())
@@ -352,8 +353,8 @@ class Trainer:
             s_outputs=dual_s_outputs
             #dual_causal_s_hidden
         )
-        causal_loss_ce = counterfactual_outputs_student["loss"]
-        causal_loss_ce += dual_counterfactual_outputs_student["loss"]
+        causal_loss_ce = counterfactual_outputs_student["loss"].to(self.device)
+        causal_loss_ce += dual_counterfactual_outputs_student["loss"].to(self.device)
 
         self.last_student_interchange_efficacy = counterfactual_outputs_student["student_interchange_efficacy"].item()
         self.last_teacher_interchange_efficacy = counterfactual_outputs_student["teacher_interchange_efficacy"].item()
@@ -364,7 +365,6 @@ class Trainer:
         loss += self.alpha_causal * causal_loss_ce
             
         self.track_II_loss.append(counterfactual_outputs_student["loss"].item()+dual_counterfactual_outputs_student["loss"].item() )
-        
         self.total_loss_epoch += loss.item()
         self.last_loss = loss.item()# optional recording of the value.
         self.last_loss_causal_ce = causal_loss_ce.item()
@@ -399,8 +399,8 @@ class Trainer:
                 look_up=look_up_base
             )
 
-        t_outputs = teacher_outputs["outputs"]
-        dual_t_outputs = dual_teacher_outputs["outputs"]
+        t_outputs = teacher_outputs["outputs"].to(self.device)
+        dual_t_outputs = dual_teacher_outputs["outputs"].to(self.device)
         # student forward pass normal.
         student_outputs = self.student(
             input_ids=source_ids, # source input
@@ -416,12 +416,12 @@ class Trainer:
             #dual_t_hidden
         )
 
-        s_outputs = student_outputs["outputs"]
-        dual_s_outputs = dual_student_outputs["outputs"]
+        s_outputs = student_outputs["outputs"].to(self.device)
+        dual_s_outputs = dual_student_outputs["outputs"].to(self.device)
         
         # Loss
-        loss = student_outputs["loss"]
-        loss+= dual_student_outputs["loss"]
+        loss = student_outputs["loss"].to(self.device)
+        loss+= dual_student_outputs["loss"].to(self.device)
 
         self.track_loss.append(loss.item())
         self.total_loss_epoch += loss.item()
@@ -436,6 +436,7 @@ class Trainer:
         backward pass on the loss, possibly followed by a parameter update (depending on the gradient accumulation).
         Also update the metrics for tensorboard.
         """
+        loss = loss.to(self.device)
         # Check for NaN
         if (loss != loss).data.any():
             logger.error("NaN detected")
@@ -587,11 +588,11 @@ class Trainer:
 
                 pre_meal, post_meal, pat_names = batch
 
-                source = pre_meal[0, :]
-                source_labels = post_meal[0]
+                source = pre_meal[0, :].to(self.device)
+                source_labels = post_meal[0].to(self.device)
                 
-                base = pre_meal[-1, :]
-                base_labels = post_meal[-1]
+                base = pre_meal[-1, :].to(self.device)
+                base_labels = post_meal[-1].to(self.device)
                 
                 look_up_source, look_up_base = pat_names
             
@@ -611,7 +612,7 @@ class Trainer:
                     interchanged_variables=dual_counterfactual_activations_teacher, # base activations
                     variable_names=teacher_interchanged_variables_mapping
                 )
-                labels.append(outputs_teacher["outputs"])
+                labels.append(outputs_teacher["outputs"].to(self.device))
 
                 # Run the neural model with the intervention:
                 dual_counterfactual_activations_student = get_activation_at(
@@ -626,15 +627,15 @@ class Trainer:
                     variable_names=student_interchanged_variables_mapping
                 )
                 # Get the neural model's prediction with the intervention:
-                pred = outputs_student['outputs']
+                pred = outputs_student['outputs'].to(self.device)
                 predictions.append(pred)
 
             # logger.info("Counterfactual evaluation")
             # logger.info(torch.cat(predictions, dim=0))
             # logger.info("Labels")
             # logger.info(torch.stack(labels))
-            mse_loss = self.loss(torch.cat(predictions, dim=0),torch.stack(labels))
-            mae_loss = self.mae_loss(torch.cat(predictions, dim=0),torch.stack(labels))
+            mse_loss = self.loss(torch.cat(predictions, dim=0).to(self.device),torch.stack(labels).to(self.device))
+            mae_loss = self.mae_loss(torch.cat(predictions, dim=0).to(self.device),torch.stack(labels).to(self.device))
             return mse_loss, mae_loss
     
     def beh_loss(self, dataset):
@@ -646,11 +647,11 @@ class Trainer:
 
                 pre_meal, post_meal, pat_names = batch
 
-                source = pre_meal[0, :]
-                source_labels = post_meal[0]
+                source = pre_meal[0, :].to(self.device)
+                source_labels = post_meal[0].to(self.device)
                 
-                base = pre_meal[-1, :]
-                base_labels = post_meal[-1]
+                base = pre_meal[-1, :].to(self.device)
+                base_labels = post_meal[-1].to(self.device)
                 
                 look_up_source, look_up_base = pat_names
 
@@ -660,13 +661,13 @@ class Trainer:
                     labels=source_labels,
                     look_up=look_up_source
                 )
-                labels.append(outputs_teacher["outputs"])
+                labels.append(outputs_teacher["outputs"].to(self.device))
                 # Run the neural model:
                 outputs_student = self.student(
                     input_ids=source # source input
                 )
                 # Get the neural model's prediction
-                pred = outputs_student['outputs']
+                pred = outputs_student['outputs'].to(self.device)
                 predictions.append(pred)
 
                 # Run the causal model:
@@ -675,13 +676,13 @@ class Trainer:
                     labels=base_labels,
                     look_up=look_up_base
                 )
-                labels.append(outputs_teacher["outputs"])
+                labels.append(outputs_teacher["outputs"].to(self.device))
                 # Run the neural model:
                 outputs_student = self.student(
                     input_ids=base # base input
                 )
                 # Get the neural model's prediction
-                pred = outputs_student['outputs']
+                pred = outputs_student['outputs'].to(self.device)
                 predictions.append(pred)
 
             # logger.info("\nStandard evaluation")
@@ -689,8 +690,8 @@ class Trainer:
             # logger.info(torch.cat(predictions, dim=0))
             # logger.info("Labels")
             # logger.info(torch.stack(labels))
-            mse_loss = self.loss(torch.cat(predictions, dim=0),torch.stack(labels))
-            mae_loss = self.mae_loss(torch.cat(predictions, dim=0),torch.stack(labels))
+            mse_loss = self.loss(torch.cat(predictions, dim=0).to(self.device),torch.stack(labels).to(self.device))
+            mae_loss = self.mae_loss(torch.cat(predictions, dim=0).to(self.device),torch.stack(labels).to(self.device))
             return mse_loss, mae_loss
     
     def clarke_error_grid_analysis(self, dataset, mode):
@@ -707,11 +708,11 @@ class Trainer:
 
                 pre_meal, post_meal, pat_names = batch
 
-                source = pre_meal[0, :]
-                source_labels = post_meal[0]
+                source = pre_meal[0, :].to(self.device)
+                source_labels = post_meal[0].to(self.device)
                 
-                base = pre_meal[-1, :]
-                base_labels = post_meal[-1]
+                base = pre_meal[-1, :].to(self.device)
+                base_labels = post_meal[-1].to(self.device)
                 
                 look_up_source, look_up_base = pat_names
 
@@ -721,13 +722,13 @@ class Trainer:
                     labels=source_labels,
                     look_up=look_up_source
                 )
-                labels.append(outputs_teacher["outputs"]*100)
+                labels.append(outputs_teacher["outputs"].to(self.device)*100)
                 # Run the neural model:
                 outputs_student = self.student(
                     input_ids=source # source input
                 )
                 # Get the neural model's prediction
-                pred = outputs_student['outputs']
+                pred = outputs_student['outputs'].to(self.device)
                 predictions.append(pred*100)
 
                 # Run the causal model:
@@ -736,17 +737,17 @@ class Trainer:
                     labels=base_labels,
                     look_up=look_up_base
                 )
-                labels.append(outputs_teacher["outputs"]*100)
+                labels.append(outputs_teacher["outputs"].to(self.device)*100)
                 # Run the neural model:
                 outputs_student = self.student(
                     input_ids=base # base input
                 )
                 # Get the neural model's prediction
-                pred = outputs_student['outputs']
+                pred = outputs_student['outputs'].to(self.device)
                 predictions.append(pred*100)
         
-        y_pred = torch.cat(predictions, dim=0)
-        y_true = torch.stack(labels)
+        y_pred = torch.cat(predictions, dim=0).to(self.device)
+        y_true = torch.stack(labels).to(self.device)
         # logger.info("Predictions")
         # logger.info(y_pred)
         # logger.info("Labels")
@@ -765,4 +766,4 @@ class Trainer:
 
         if mode=="test":
             print(self.df)
-            # self.df.to_excel(os.path.join(self.dump_path, "output.xlsx"), index=False)
+            self.df.to_excel(os.path.join(self.dump_path, "output.xlsx"), index=False)

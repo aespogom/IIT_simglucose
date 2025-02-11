@@ -2,58 +2,61 @@ import subprocess
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from datetime import datetime
 import os
+import torch
 
-# Get available CPU cores dynamically
-NUM_CPUS = os.cpu_count()
-NUM_WORKERS = max(1, NUM_CPUS // 2)  # Use half the available CPUs
+# Check available GPUs
+NUM_GPUS = torch.cuda.device_count()
+print(torch.cuda.is_available())
+print(f"Available GPUs: {NUM_GPUS}")
 
-print(f"Optimizing for {NUM_CPUS} CPU cores, running {NUM_WORKERS} tasks in parallel.")
-
+PYTHON_EXECUTABLE = '.venv\\Scripts\\python.exe'
 # List of tasks. Each task is a list where the first element is the script, and the following elements are the arguments for that script.
+# python -m main_MLP --pred_horizon 30 --neuro_mapping train_config/MLP_parallel.nm --seed 44 --student_model parallel
 tasks = []
-for seed in [8,9,101,78,61,2042,732,25,44,87]:
+for seed in [44,87]:
     for model in ["parallel","tree", "tree_joint"]:
         tasks.extend([
-            ['python', '-m', 'main_MLP',
+            
+            [PYTHON_EXECUTABLE, '-m', 'main_MLP',
                 '--pred_horizon', '30',
                 '--neuro_mapping', f'train_config/MLP_{model}.nm',
                 '--seed', str(seed),
                 '--student_model', model
             ],
-            ['python', '-m', 'main_MLP',
+            [PYTHON_EXECUTABLE, '-m', 'main_MLP',
                 '--pred_horizon', '30',
                 '--seed', str(seed),
                 '--student_model', model
             ],
-            ['python', '-m', 'main_MLP',
+            [PYTHON_EXECUTABLE, '-m', 'main_MLP',
                 '--pred_horizon', '45',
                 '--neuro_mapping', f'train_config/MLP_{model}.nm',
                 '--seed', str(seed),
                 '--student_model', model
             ],
-            ['python', '-m', 'main_MLP',
+            [PYTHON_EXECUTABLE, '-m', 'main_MLP',
                 '--pred_horizon', '45',
                 '--seed', str(seed),
                 '--student_model', model
             ],
-            ['python', '-m', 'main_MLP',
+            [PYTHON_EXECUTABLE, '-m', 'main_MLP',
                 '--pred_horizon', '60',
                 '--neuro_mapping', f'train_config/MLP_{model}.nm',
                 '--seed', str(seed),
                 '--student_model', model
             ],
-            ['python', '-m', 'main_MLP',
+            [PYTHON_EXECUTABLE, '-m', 'main_MLP',
                 '--pred_horizon', '60',
                 '--seed', str(seed),
                 '--student_model', model
             ],
-            ['python', '-m', 'main_MLP',
+            [PYTHON_EXECUTABLE, '-m', 'main_MLP',
                 '--pred_horizon', '120',
                 '--neuro_mapping', f'train_config/MLP_{model}.nm',
                 '--seed', str(seed),
                 '--student_model', model
             ],
-            ['python', '-m', 'main_MLP',
+            [PYTHON_EXECUTABLE, '-m', 'main_MLP',
                 '--pred_horizon', '120',
                 '--seed', str(seed),
                 '--student_model', model
@@ -61,13 +64,16 @@ for seed in [8,9,101,78,61,2042,732,25,44,87]:
         ])
 
 # Function to run a single task
-def run_task(task):
+def run_task(task, gpu_id):
     """Run a single task using subprocess.run"""
+    env = os.environ.copy()
+    env["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
+    
     start_time = datetime.now()
     print(f"Starting task {task} at {start_time.strftime('%d/%m/%Y, %H:%M:%S')}")
-    
-    result = subprocess.run(task, shell=False, capture_output=True, text=True)
 
+    result = subprocess.run(task, shell=False, capture_output=True, text=True, env=env)
+    
     end_time = datetime.now()
     print(f"Finished task {task} at {end_time.strftime('%d/%m/%Y, %H:%M:%S')} (Duration: {end_time - start_time})")
     
@@ -77,10 +83,13 @@ def run_task(task):
         return f"Task {task} failed with error: {result.stderr}"
 
 if __name__ == '__main__':
-    # Using ProcessPoolExecutor to run tasks concurrently
-    with ProcessPoolExecutor(max_workers=NUM_WORKERS) as executor:
-        futures = {executor.submit(run_task, task): task for task in tasks}
-        
+    num_workers = NUM_GPUS or 2  # Default to 2 workers if no GPU
+    with ProcessPoolExecutor(max_workers=num_workers) as executor:
+        futures = {}
+        for i, task in enumerate(tasks):
+            gpu_id = i % max(NUM_GPUS, 1)
+            futures[executor.submit(run_task, task, gpu_id)] = task
+
         for future in as_completed(futures):
             task = futures[future]
             try:

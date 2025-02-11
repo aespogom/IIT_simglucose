@@ -111,6 +111,7 @@ class Simglucose(nn.Module):
 
         teacher_ouputs["hidden_states"] = np.transpose(x)[:,-1] if not self.timeseries_iit else np.transpose(x)[:,10:].reshape(-1)
         
-        teacher_ouputs["outputs"]=torch.tensor(output*0.01, dtype=torch.float32)
+        device = torch.device("cuda"  if torch.cuda.is_available() else "cpu")
+        teacher_ouputs["outputs"]=torch.tensor(output*0.01, dtype=torch.float32).to(device)
 
         return teacher_ouputs
